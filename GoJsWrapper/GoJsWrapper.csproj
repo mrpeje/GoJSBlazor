@@ -7,12 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="gojs-scripts.js" />
+    <None Remove="Models\gojs-scriptss.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="gojs-scripts.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <Content Include="Models\gojs-scriptss.js">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

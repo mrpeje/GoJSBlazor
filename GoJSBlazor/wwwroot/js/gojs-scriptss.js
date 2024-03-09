@@ -438,22 +438,17 @@
                 dotNetObjectRef.invokeMethodAsync('OnCustomEvent');
         });
     }
-function subscribeLinkSelectionChangedEventListener(dotNetObjectRef) {
-    myDiagram.addDiagramListener('ChangedSelection', (event) => {
-        var link = event.diagram.selection.first();
-        if (link instanceof go.Link) {
-            dotNetObjectRef.invokeMethodAsync('OnLinkSelectionChangedEvent', link.key.toString());
-        }
-    });
-}
-function subscribeNodeSelectionChangedEventListener(dotNetObjectRef) {
-    myDiagram.addDiagramListener('ChangedSelection', (event) => {
-        var node = event.diagram.selection.first();
-        if (node instanceof go.Node) {
-            dotNetObjectRef.invokeMethodAsync('OnNodeSelectionChangedEvent', node.key.toString());
-        }
-    });
-}
+    function subscribeSelectionChangedEventListener(dotNetObjectRef) {
+        myDiagram.addDiagramListener('ChangedSelection', (event) => {
+            var obj = event.diagram.selection.first();
+            if (obj instanceof go.Node) {
+                dotNetObjectRef.invokeMethodAsync('OnNodeSelectionChangedEvent', obj.key.toString());
+            }
+            if (obj instanceof go.Link) {
+                dotNetObjectRef.invokeMethodAsync('OnLinkSelectionChangedEvent', obj.key.toString());
+            }
+        });
+    }
     function subscribeModelChangedEvent(netRefrenece) {
         myDiagram.addModelChangedListener(evt => {
             if (evt.isTransactionFinished) callNetModelUpdate(evt.model.toJson(), netRefrenece);

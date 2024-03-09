@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Routing;
 namespace GoJSBlazor.Pages {
     public partial class Index : ComponentBase
     {
-        [Inject] GoJsWrapperIn ExampleJsInterop { get; set; }
+        [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
         public string Text2 { get; set; }
@@ -25,7 +25,7 @@ namespace GoJSBlazor.Pages {
         {
             var block = ExampleJsInterop.Model.Blocks.FirstOrDefault();
             block.Coordinates = "50 50";
-            await ExampleJsInterop.MoveBlock(block.Id, block.Coordinates);
+            await ExampleJsInterop.Model.MoveBlock(block.Id, block.Coordinates);
         }
         private void HandleCustomEvent(string args)
         {
@@ -49,7 +49,7 @@ namespace GoJSBlazor.Pages {
             block.InputPorts.FirstOrDefault().Description = "red port";
             block.InputPorts.FirstOrDefault().Name = "red port";
             block.Description = "New description";
-            await ExampleJsInterop.UpdateBlock(block);
+            await ExampleJsInterop.Model.UpdateBlock(block);
         }
         protected async void AddNewBlock()
         {
@@ -64,7 +64,7 @@ namespace GoJSBlazor.Pages {
                 
             };
             
-            await ExampleJsInterop.AddBlock(newBlock);
+            await ExampleJsInterop.Model.AddBlock(newBlock);
         }
         protected async void AddLink()
         {
@@ -77,24 +77,19 @@ namespace GoJSBlazor.Pages {
                 To = toBlock.Id,
                 From = fromBlock.Id
             };
-            await ExampleJsInterop.AddLink(newLink);
+            await ExampleJsInterop.Model.AddLink(newLink);
         }
         protected async void RemoveBlock()
         {
 
-            await ExampleJsInterop.RemoveBlock(NodeId);
+            await ExampleJsInterop.Model.RemoveBlock(NodeId);
         }
         protected async void RemoveLink()
         {
-            var link = new LinkModel
-            {
-                fromPort = "right0",//fromPort,
-                toPort = "left0",//toPort,
-                To = "-2",//to,
-                From = "-3",// from
-                Key = 1
-            };
-            await ExampleJsInterop.RemoveLink(link);
+            var linkId = "1";
+            var link = ExampleJsInterop.Model.Links.FirstOrDefault(e => e.Id == linkId);
+
+            await ExampleJsInterop.Model.RemoveLink(link.Id);
         }
         protected async void Load()
         {
@@ -135,11 +130,8 @@ namespace GoJSBlazor.Pages {
                 };
                 await ExampleJsInterop.InitGoJS(listBlock);
 
-                //await ExampleJsInterop.SetupCustomEventCallback(args => HandleCustomEvent(args));
-                //ExampleJsInterop.SetupNodeSelectionChangedEvent(args => HandleCustomEvent(args));
-                //ExampleJsInterop.SetupNodeSelectionChangedEvent(args => HandleCustomEvent2(args));
-                ExampleJsInterop.LinkSelectionHelper.LinkSelectionChanged += HandleCustomEvent2;
-                ExampleJsInterop.NodeSelectionHelper.NodeSelectionChanged += HandleCustomEvent;
+                ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
+                ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
             }
         }
 

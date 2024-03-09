@@ -10,7 +10,7 @@ namespace GoJsWrapper.Models
     public class LinkModel
     {
         [JsonProperty(PropertyName = "key")]
-        public int Key { get; set; }
+        public string Id { get; set; } = "1";
         [JsonProperty(PropertyName = "from")]
         public string From { get; set; }
         [JsonProperty(PropertyName = "to")]
