@@ -1,0 +1,33 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+
+<div class="my-component">
+    <div id="myDiagramDiv" style="height: 400px; width: 400px; border: 1px solid black;"></div>
+    <input type="text" @bind="NodeId" />
+    <button class="btn btn-primary" @onclick="() => Save(NodeId)">Save</button>
+    <button class="btn btn-primary" @onclick="Load()">Load</button>
+    <textarea id="mySavedModel" style="width: 100%; height: 300px"></textarea>
+</div>
+
+@code {
+    [Inject] protected IJSRuntime JSRuntime { get; set; }
+
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // This calls the script in gojs-scripts.js
+            await JSRuntime.InvokeAsync<string>("initGoJS");
+        }
+    }
+    protected async void Save()
+    {
+        await JSRuntime.InvokeAsync<string>("saveDiagram");
+    }
+
+    protected async void Load()
+    {
+        await JSRuntime.InvokeAsync<string>("loadDiagram");
+    }
+}
+
