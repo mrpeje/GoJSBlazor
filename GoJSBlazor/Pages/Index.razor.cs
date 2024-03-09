@@ -149,7 +149,9 @@ namespace GoJSBlazor.Pages {
                 AddNewBlocksToPalette();
                 //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
-                ExampleJsInterop.BlockPositionEventInterceptor.BlockPositionChanged += HandleCustomEvent2;
+
+                ExampleJsInterop.MouseHoverEventInterceptor.LinkMouseHover += HandleCustomEvent;
+                ExampleJsInterop.MouseHoverEventInterceptor.NodeMouseHover += HandleCustomEvent2;
             }
         }
 

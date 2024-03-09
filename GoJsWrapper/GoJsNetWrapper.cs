@@ -17,8 +17,10 @@ namespace GoJsWrapper
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
         private DotNetObjectReference<ModelChangedInterceptor> ReferenceModelInterceptor;
         private DotNetObjectReference<BlockPositionChangedEventInterceptor> ReferenceBlockPositionChangedInterceptor;
+        private DotNetObjectReference<OnMouseHoverEventInterceptor> ReferenceMouseHoverEventInterceptor;
         private ModelChangedInterceptor ModelInterceptor;
 
+        public OnMouseHoverEventInterceptor MouseHoverEventInterceptor;
         public SelectionChangedEventInterceptor SelectionEventInterceptor;
         public BlockPositionChangedEventInterceptor BlockPositionEventInterceptor;
         public Diagram Diagram;
@@ -32,13 +34,15 @@ namespace GoJsWrapper
             ModelInterceptor = new ModelChangedInterceptor();
             SelectionEventInterceptor = new SelectionChangedEventInterceptor();
             BlockPositionEventInterceptor = new BlockPositionChangedEventInterceptor();
+            MouseHoverEventInterceptor = new OnMouseHoverEventInterceptor();
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
 
         public async ValueTask InitGoJS()
         {
-            await _jsRuntime.InvokeAsync<string>("initDiagram");
+            SetupMouseHoverEvent();
+            await _jsRuntime.InvokeAsync<string>("initDiagram", ReferenceMouseHoverEventInterceptor);
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
             SetupBlockPositionChangedEvent();
@@ -82,6 +86,11 @@ namespace GoJsWrapper
         {
             ReferenceBlockPositionChangedInterceptor = DotNetObjectReference.Create(BlockPositionEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceBlockPositionChangedInterceptor);
+        }
+        public void SetupMouseHoverEvent()
+        {
+            ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
+            //_jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceMouseHoverEventInterceptor);
         }
     }
 }

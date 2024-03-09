@@ -1,6 +1,6 @@
 ﻿    var netRefreneceVar = 1;
 
-    function initDiagram() {
+function initDiagram(netReference) {
 
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
@@ -75,6 +75,11 @@
                 },
                 new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),  
                 new go.Binding("text", "description"),
+                { 
+                    mouseHover: (e, obj) => {
+                        netReference.invokeMethodAsync('OnNodeMouseHoverEvent', obj.key.toString());
+                    }
+                },
                 // the body
                 $(go.Panel, "Auto",
                     {
@@ -171,6 +176,11 @@
                     resegmentable: true,
                     relinkableFrom: true,
                     relinkableTo: true
+                },
+                {
+                    mouseHover: (e, obj) => {
+                        netReference.invokeMethodAsync('OnLinkMouseHoverEvent', obj.key.toString());
+                    }
                 },
                 new go.Binding("points").makeTwoWay(),
                 $(go.Shape, { stroke: "#2F4F4F", strokeWidth: 2 })
