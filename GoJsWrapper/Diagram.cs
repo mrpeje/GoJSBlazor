@@ -125,9 +125,8 @@ namespace GoJsWrapper
             var block = Blocks.FirstOrDefault(e => e.Id == blockId);
             if (block != null)
             {
-                var blockJson = JsonConvert.SerializeObject(block);
                 block.Coordinates = newCoordinates;
-                await _jsRuntime.InvokeAsync<string>("updateBlock", blockJson);
+                await _jsRuntime.InvokeAsync<string>("updateBlockPosition", block.Id, newCoordinates);
             }
         }
 

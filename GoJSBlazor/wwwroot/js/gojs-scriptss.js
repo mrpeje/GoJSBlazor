@@ -421,8 +421,25 @@
             if (evt.isTransactionFinished)
                 netRefrenece.invokeMethod('OnPaletteModelChangedEvent', myPalette.model.toJson());
         });
-
     }
+
+function subscribeBlockMovedEvent(netRefreneceBlockPositionChanged) {
+        myDiagram.addModelChangedListener(evt => {
+            if (!evt.isTransactionFinished) return;
+            var txn = evt.object; 
+            if (txn === null) return;
+            txn.changes.each(e => { 
+                //if (e.modelChange !== "nodeDataArray") return;
+                if (e.change === go.ChangedEvent.Property) {
+                    if (e.propertyName === "loc")
+                        netRefreneceBlockPositionChanged.invokeMethod('OnBlockPositionChangedEvent', e.object.name );
+                }
+            });
+        });
+    }
+
+
+
     function removeBlock(block) {
         var jsonBlock = JSON.parse(block);
         myDiagram.startTransaction("Delete new block");
@@ -453,12 +470,18 @@
         var node = myDiagram.model.findNodeDataForKey(jsonBlock.key);
         myDiagram.startTransaction("update block");
         myDiagram.model.setDataProperty(node, "color", jsonBlock.color);
-        myDiagram.model.setDataProperty(node, "loc", jsonBlock.loc);
         myDiagram.model.setDataProperty(node, "name", jsonBlock.name);
         myDiagram.model.setDataProperty(node, "leftArray", jsonBlock.leftArray);
         myDiagram.model.setDataProperty(node, "rightArray", jsonBlock.rightArray);
         myDiagram.model.setDataProperty(node, "description", jsonBlock.description);
         myDiagram.commitTransaction("update block");
+    }
+    function updateBlockPosition(blockKey, newCoordinates) {
+
+        var node = myDiagram.model.findNodeDataForKey(blockKey);
+        myDiagram.startTransaction("update block position");
+        myDiagram.model.setDataProperty(node, "loc", newCoordinates);
+        myDiagram.commitTransaction("update block position");
     }
     function addLink(newLink) {
         var jsonNewLink = JSON.parse(newLink);

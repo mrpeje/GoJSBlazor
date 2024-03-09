@@ -16,9 +16,11 @@ namespace GoJsWrapper
         private string JsonModel { get; set; }
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
         private DotNetObjectReference<ModelChangedInterceptor> ReferenceModelInterceptor;
+        private DotNetObjectReference<BlockPositionChangedEventInterceptor> ReferenceBlockPositionChangedInterceptor;
         private ModelChangedInterceptor ModelInterceptor;
 
         public SelectionChangedEventInterceptor SelectionEventInterceptor;
+        public BlockPositionChangedEventInterceptor BlockPositionEventInterceptor;
         public Diagram Diagram;
         public Palette Palette;
 
@@ -29,6 +31,7 @@ namespace GoJsWrapper
             Palette = new Palette(_jsRuntime);
             ModelInterceptor = new ModelChangedInterceptor();
             SelectionEventInterceptor = new SelectionChangedEventInterceptor();
+            BlockPositionEventInterceptor = new BlockPositionChangedEventInterceptor();
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
@@ -38,6 +41,7 @@ namespace GoJsWrapper
             await _jsRuntime.InvokeAsync<string>("initDiagram");
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
+            SetupBlockPositionChangedEvent();
         }
 
         public async Task<string> GetModelJson()
@@ -73,6 +77,11 @@ namespace GoJsWrapper
         {
             ReferenceSelectionChangedInterceptor = DotNetObjectReference.Create(SelectionEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeSelectionChangedEventListener", ReferenceSelectionChangedInterceptor);
+        }            
+        public void SetupBlockPositionChangedEvent()
+        {
+            ReferenceBlockPositionChangedInterceptor = DotNetObjectReference.Create(BlockPositionEventInterceptor);
+            _jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceBlockPositionChangedInterceptor);
         }
     }
 }

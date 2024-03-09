@@ -33,6 +33,4 @@ namespace GoJsWrapper.Models
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
     }
-
-
 }
