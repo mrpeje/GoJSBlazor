@@ -1,3 +1,4 @@
+using GoJsWrapper.EventInterceptors;
 using GoJsWrapper.Models;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;

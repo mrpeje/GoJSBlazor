@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GoJsWrapper
+namespace GoJsWrapper.EventInterceptors
 {
     internal class ModelChangedInterceptor
     {
@@ -25,18 +25,4 @@ namespace GoJsWrapper
             PaletteModelChanged?.Invoke(model);
         }
     }
-
-
-    public class SelectionChangedEventInterceptor
-    {
-        public delegate void SelectionChangedHandler(string id);
-        public event SelectionChangedHandler LinkSelectionChanged;
-        public event SelectionChangedHandler NodeSelectionChanged;
-        [JSInvokable]
-        public void OnLinkSelectionChangedEvent(string args) => LinkSelectionChanged?.Invoke(args);        
-
-        [JSInvokable]
-        public void OnNodeSelectionChangedEvent(string args) => NodeSelectionChanged?.Invoke(args);
-    }
-
 }

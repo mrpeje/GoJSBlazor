@@ -53,14 +53,14 @@ namespace GoJSBlazor.Pages {
         }
         protected async void AddNewBlock()
         {
-            var newBlock = new UnitModel
+            var newBlock = new BlockModel
             {
                 Name = "Name",
                 Category = "Category",
                 Id="1",
                 Description ="",
-                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "red" } },
-                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "red" } }
+                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "red" } },
+                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "red" } }
                 
             };
             
@@ -68,38 +68,38 @@ namespace GoJSBlazor.Pages {
         }
         protected async void AddNewBlocksToPalette()
         {
-            var newBlock = new UnitModel
+            var newBlock = new BlockModel
             {
                 Name = "Red",
                 Category = "Category",
                 Id = "0",
                 Description = "Category1",
-                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "black" } },
-                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "black" } },
+                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "black" } },
+                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "black" } },
                 Color = "red"
             };
 
             await ExampleJsInterop.Palette.AddBlock(newBlock);
-            var newBlock2 = new UnitModel
+            var newBlock2 = new BlockModel
             {
                 Name = "Green",
                 Category = "Category2",
                 Id = "0",
                 Description = "Category2",
-                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "blue" } },
-                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "blue" } },
+                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "blue" } },
+                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "blue" } },
                 Color = "green"
             };
 
             await ExampleJsInterop.Palette.AddBlock(newBlock2);
-            var newBlock3 = new UnitModel
+            var newBlock3 = new BlockModel
             {
                 Name = "Yellow",
                 Category = "Category3",
                 Id = "0",
                 Description = "Category3",
-                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "orange" } },
-                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "orange" } },
+                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "orange" } },
+                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "orange" } },
                 Color = "yellow"
             };
 

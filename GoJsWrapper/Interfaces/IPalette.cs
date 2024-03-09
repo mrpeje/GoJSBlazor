@@ -9,7 +9,7 @@ namespace GoJsWrapper.Interfaces
 {
     internal interface IPalette
     {
-        public Task AddBlock(UnitModel block);
+        public Task AddBlock(BlockModel block);
         public Task RemoveBlock(string blockId);
 
     }

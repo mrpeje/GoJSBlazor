@@ -9,9 +9,9 @@ namespace GoJsWrapper.Interfaces
 {
     internal interface IDiagram
     {
-        public Task AddBlock(UnitModel block);
+        public Task AddBlock(BlockModel block);
         public Task RemoveBlock(string blockId);
-        public Task UpdateBlock(UnitModel block);
+        public Task UpdateBlock(BlockModel block);
         public Task MoveBlock(string blockId, string coordinates);
 
         public Task AddLink(LinkModel link);

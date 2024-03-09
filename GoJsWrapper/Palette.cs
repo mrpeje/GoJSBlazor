@@ -9,12 +9,12 @@ namespace GoJsWrapper
     public class Palette : IPalette
     {
         [JsonProperty(PropertyName = "nodeDataArray")]
-        public IEnumerable<UnitModel> Model { get; private set; }
+        public IEnumerable<BlockModel> Model { get; private set; }
         private readonly IJSRuntime _jsRuntime;
         public Palette(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            Model = new List<UnitModel>();
+            Model = new List<BlockModel>();
         }
         internal void UpdatePaletteModel(string model)
         {
@@ -31,7 +31,7 @@ namespace GoJsWrapper
 
             }
         }
-        public async Task AddBlock(UnitModel block)
+        public async Task AddBlock(BlockModel block)
         {
             if (ValidateNewBlock(block))
             {
@@ -40,7 +40,7 @@ namespace GoJsWrapper
             }
         }
 
-        private bool ValidateNewBlock(UnitModel newBlock)
+        private bool ValidateNewBlock(BlockModel newBlock)
         {
             if(newBlock == null || newBlock.Category == null || newBlock.Id == null)
                 return false;

@@ -16,14 +16,14 @@ namespace GoJsWrapper
         private readonly IJSRuntime _jsRuntime;
 
         [JsonProperty(PropertyName = "nodeDataArray")]
-        public IEnumerable<UnitModel> Blocks { get; private set; }
+        public IEnumerable<BlockModel> Blocks { get; private set; }
 
         [JsonProperty(PropertyName = "linkDataArray")]
         public IEnumerable<LinkModel> Links { get; private set; }
         public Diagram(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            Blocks = new List<UnitModel>();
+            Blocks = new List<BlockModel>();
             Links = new List<LinkModel>();
         }
         internal void UpdateDiagramModel(string model)
@@ -73,23 +73,23 @@ namespace GoJsWrapper
                                         e.fromPort == link.fromPort &&
                                         e.toPort == link.toPort*/);
         }
-        public UnitModel? GetBlock(string blockId)
+        public BlockModel? GetBlock(string blockId)
         {
             return Blocks.FirstOrDefault(/*e => e.Id.Equals(blockId)*/);
         }
-        public UnitModel ValidateNewBlock(UnitModel newBlock)
+        public BlockModel ValidateNewBlock(BlockModel newBlock)
         {
             if (newBlock.InputPorts == null)
-                newBlock.InputPorts = new List<Port>();
+                newBlock.InputPorts = new List<PortModel>();
             if (newBlock.OutputPorts == null)
-                newBlock.OutputPorts = new List<Port>();
+                newBlock.OutputPorts = new List<PortModel>();
             if (string.IsNullOrEmpty(newBlock.Category))
                 newBlock.Category = "Category";
             return newBlock;
         }
 
 
-        public async Task AddBlock(UnitModel newBlock)
+        public async Task AddBlock(BlockModel newBlock)
         {
             var validatedBlock = ValidateNewBlock(newBlock);
             if (validatedBlock != null)
@@ -109,7 +109,7 @@ namespace GoJsWrapper
             }
         }
 
-        public async Task UpdateBlock(UnitModel block)
+        public async Task UpdateBlock(BlockModel block)
         {
             var blockToUpdate = Blocks.FirstOrDefault(e => e.Id == block.Id);
             if (blockToUpdate != null)

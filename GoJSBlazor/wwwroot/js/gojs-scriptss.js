@@ -446,7 +446,7 @@
         myPalette.startTransaction("Delete new block");
         var node = myPalette.model.findNodeDataForKey(blockId);
         myPalette.model.removeNodeData(node);
-        myPalette.commitTransaction("Deletenewblock");
+        myPalette.commitTransaction("Delete new block");
     }
     function updateBlock(block) {
         var jsonBlock = JSON.parse(block);

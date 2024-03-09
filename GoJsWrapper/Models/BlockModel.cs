@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GoJsWrapper.Models
 {
-    public class UnitModel
+    public class BlockModel
     {
         [JsonProperty(PropertyName = "name")]
         public string Name {get; set;}
@@ -19,10 +19,10 @@ namespace GoJsWrapper.Models
         public string Id { get; set; }
 
         [JsonProperty(PropertyName = "leftArray")]
-        public List<Port> InputPorts { get; set; }
+        public List<PortModel> InputPorts { get; set; }
 
         [JsonProperty(PropertyName = "rightArray")]
-        public List<Port> OutputPorts { get; set; }
+        public List<PortModel> OutputPorts { get; set; }
 
         [JsonProperty(PropertyName = "loc")]
         public string Coordinates { get; set; }
@@ -33,17 +33,6 @@ namespace GoJsWrapper.Models
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
     }
-    public class Port
-    {
-        [JsonProperty(PropertyName = "portId")] 
-        public string Id { get; set; }
-        [JsonProperty(PropertyName = "name")]
-        public string Name { get; set; }
-        [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
 
-        [JsonProperty(PropertyName = "portColor")]
-        public string Color { get; set; }
-    }
 
 }
