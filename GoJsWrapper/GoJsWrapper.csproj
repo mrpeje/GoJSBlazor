@@ -10,13 +10,6 @@
     <None Remove="Models\gojs-scriptss.js" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Models\gojs-scriptss.js">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />

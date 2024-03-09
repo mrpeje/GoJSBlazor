@@ -1,12 +1,11 @@
 ﻿    var netRefreneceVar = 1;
 
-    function initDiagram(PalleteBlocks) {
+    function initDiagram() {
 
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
         const $ = go.GraphObject.make;  //for conciseness in defining node templates
     
-
         myDiagram = $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
             {
                 "undoManager.isEnabled": true  // enable undo & redo
@@ -197,42 +196,11 @@
                     (e, obj) => e.diagram.commandHandler.redo(),
                     o => o.diagram.commandHandler.canRedo())
             );
-    
-    
-    
-        var jsonArray = JSON.parse(PalleteBlocks);
-        var modelData = [];
-
-        for (var i = 0; i < jsonArray.length; i++) {
-            var obj = jsonArray[i];
-
-            myDiagram.nodeTemplateMap.add(obj.Name, createNode());
-
-            var leftArray = [];
-            var rightArray = [];
-
-            for (var j = 0; j < obj.NumberOutputPorts; j++) {
-                rightArray.push({ portColor: "#fae3d7", portId: "right" + j, name: "port" + j, description: "port" + j });
-            }
-
-            for (var k = 0; k < obj.NumberInputPorts; k++) {
-                leftArray.push({ portColor: "#fae3d7", portId: "left" + k, name: "port" + k, description: "port" + k });
-            }
-            modelData.push({
-                category: obj.Type,
-                name: obj.Name + i,
-                description: obj.Type + obj.Name, 
-                rightArray: rightArray,
-                leftArray: leftArray
-            });
-        }
-        var model = new go.GraphLinksModel(modelData);
 
         myPalette =
             new go.Palette("myPaletteDiv",
                 {
-                    nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
-                    model: model,
+                    nodeTemplateMap: myDiagram.nodeTemplateMap, 
                     linkTemplate: myDiagram.linkTemplate
 
                 });
@@ -432,12 +400,7 @@
         var modelJson = jsonDefault;
         myDiagram.model = go.Model.fromJson(modelJson);
     }
-    function addCustomEventListener(dotNetObjectRef) {
-        myDiagram.addModelChangedListener((event) => {
-            if (event.isTransactionFinished)
-                dotNetObjectRef.invokeMethodAsync('OnCustomEvent');
-        });
-    }
+
     function subscribeSelectionChangedEventListener(dotNetObjectRef) {
         myDiagram.addDiagramListener('ChangedSelection', (event) => {
             var obj = event.diagram.selection.first();
@@ -451,13 +414,14 @@
     }
     function subscribeModelChangedEvent(netRefrenece) {
         myDiagram.addModelChangedListener(evt => {
-            if (evt.isTransactionFinished) callNetModelUpdate(evt.model.toJson(), netRefrenece);
+            if (evt.isTransactionFinished)
+                netRefrenece.invokeMethod('OnDiagramModelChangedEvent', evt.model.toJson());
+        });
+        myPalette.addModelChangedListener(evt => {
+            if (evt.isTransactionFinished)
+                netRefrenece.invokeMethod('OnPaletteModelChangedEvent', myPalette.model.toJson());
         });
 
-    }
-    function callNetModelUpdate(model, netRefrenece)
-    {
-        netRefrenece.invokeMethod('UpdateModel', model);
     }
     function removeBlock(block) {
         var jsonBlock = JSON.parse(block);
@@ -471,6 +435,18 @@
         myDiagram.startTransaction("makenewblock");
         myDiagram.model.addNodeData(jsonNewBlock);
         myDiagram.commitTransaction("makenewblock");
+    }
+    function addNewPaletteBlock(newBlock) {
+        var jsonNewBlock = JSON.parse(newBlock);
+        myPalette.startTransaction("make new block on palette");
+        myPalette.model.addNodeData(jsonNewBlock);
+        myPalette.commitTransaction("make new block on palette");
+    }
+    function removePaletteBlock(blockId) {
+        myPalette.startTransaction("Delete new block");
+        var node = myPalette.model.findNodeDataForKey(blockId);
+        myPalette.model.removeNodeData(node);
+        myPalette.commitTransaction("Deletenewblock");
     }
     function updateBlock(block) {
         var jsonBlock = JSON.parse(block);

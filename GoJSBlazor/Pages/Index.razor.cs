@@ -19,13 +19,13 @@ namespace GoJSBlazor.Pages {
         }
         protected async void SelectBlock()
         {
-            await ExampleJsInterop.SelectBlockById(ExampleJsInterop.Model.Blocks.FirstOrDefault().Id);
+            await ExampleJsInterop.SelectBlockById(ExampleJsInterop.Diagram.Blocks.FirstOrDefault().Id);
         }
         protected async void MoveBlock()
         {
-            var block = ExampleJsInterop.Model.Blocks.FirstOrDefault();
+            var block = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
             block.Coordinates = "50 50";
-            await ExampleJsInterop.Model.MoveBlock(block.Id, block.Coordinates);
+            await ExampleJsInterop.Diagram.MoveBlock(block.Id, block.Coordinates);
         }
         private void HandleCustomEvent(string args)
         {
@@ -39,7 +39,7 @@ namespace GoJSBlazor.Pages {
         }
         protected async void UpdateBlock()
         {
-            var block = ExampleJsInterop.Model.Blocks.FirstOrDefault();
+            var block = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
 
             block.Name = "Name1";
             block.Category = "Category";
@@ -49,7 +49,7 @@ namespace GoJSBlazor.Pages {
             block.InputPorts.FirstOrDefault().Description = "red port";
             block.InputPorts.FirstOrDefault().Name = "red port";
             block.Description = "New description";
-            await ExampleJsInterop.Model.UpdateBlock(block);
+            await ExampleJsInterop.Diagram.UpdateBlock(block);
         }
         protected async void AddNewBlock()
         {
@@ -64,12 +64,51 @@ namespace GoJSBlazor.Pages {
                 
             };
             
-            await ExampleJsInterop.Model.AddBlock(newBlock);
+            await ExampleJsInterop.Diagram.AddBlock(newBlock);
+        }
+        protected async void AddNewBlocksToPalette()
+        {
+            var newBlock = new UnitModel
+            {
+                Name = "Red",
+                Category = "Category",
+                Id = "0",
+                Description = "Category1",
+                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "black" } },
+                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "black" } },
+                Color = "red"
+            };
+
+            await ExampleJsInterop.Palette.AddBlock(newBlock);
+            var newBlock2 = new UnitModel
+            {
+                Name = "Green",
+                Category = "Category2",
+                Id = "0",
+                Description = "Category2",
+                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "blue" } },
+                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "blue" } },
+                Color = "green"
+            };
+
+            await ExampleJsInterop.Palette.AddBlock(newBlock2);
+            var newBlock3 = new UnitModel
+            {
+                Name = "Yellow",
+                Category = "Category3",
+                Id = "0",
+                Description = "Category3",
+                InputPorts = new List<Port> { new Port() { Id = "left0", Color = "orange" } },
+                OutputPorts = new List<Port> { new Port() { Id = "right0", Color = "orange" } },
+                Color = "yellow"
+            };
+
+            await ExampleJsInterop.Palette.AddBlock(newBlock3);
         }
         protected async void AddLink()
         {
-            var fromBlock = ExampleJsInterop.Model.Blocks.FirstOrDefault();
-            var toBlock = ExampleJsInterop.Model.Blocks.FirstOrDefault(e=>e.Id != fromBlock.Id);
+            var fromBlock = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
+            var toBlock = ExampleJsInterop.Diagram.Blocks.FirstOrDefault(e=>e.Id != fromBlock.Id);
             var newLink = new LinkModel
             {
                 fromPort = "right0",
@@ -77,19 +116,23 @@ namespace GoJSBlazor.Pages {
                 To = toBlock.Id,
                 From = fromBlock.Id
             };
-            await ExampleJsInterop.Model.AddLink(newLink);
+            await ExampleJsInterop.Diagram.AddLink(newLink);
         }
         protected async void RemoveBlock()
         {
 
-            await ExampleJsInterop.Model.RemoveBlock(NodeId);
+            await ExampleJsInterop.Diagram.RemoveBlock(NodeId);
+        }
+        protected async void RemovePaletteBlock()
+        {
+            await ExampleJsInterop.Palette.RemoveBlock(ExampleJsInterop.Palette.Model.FirstOrDefault().Id);
         }
         protected async void RemoveLink()
         {
             var linkId = "1";
-            var link = ExampleJsInterop.Model.Links.FirstOrDefault(e => e.Id == linkId);
-
-            await ExampleJsInterop.Model.RemoveLink(link.Id);
+            var link = ExampleJsInterop.Diagram.Links.FirstOrDefault(e => e.Id == linkId);
+            if( link != null)
+                await ExampleJsInterop.Diagram.RemoveLink(link.Id);
         }
         protected async void Load()
         {
@@ -101,35 +144,9 @@ namespace GoJSBlazor.Pages {
             {
                 //ExampleJsInterop = new ExampleJsInterop(JSRuntime);
                 // This calls the script in gojs-scripts.js
-                var listBlock = new List<UnitCategoryModel>
-                {
-                    new UnitCategoryModel
-                    {
-                        Id = 1,
-                        Type ="Cat1",
-                        Name = "Cat1",
-                        NumberInputPorts = 1,
-                        NumberOutputPorts = 2,
-                    },
-                    new UnitCategoryModel
-                    {
-                        Id = 1,
-                        Type ="Cat2",
-                        Name = "Cat2",
-                        NumberInputPorts = 2,
-                        NumberOutputPorts = 1,
-                    },
-                    new UnitCategoryModel
-                    {
-                        Id = 1,
-                        Type ="Cat3",
-                        Name = "Cat3",
-                        NumberInputPorts = 2,
-                        NumberOutputPorts = 2,
-                    }
-                };
-                await ExampleJsInterop.InitGoJS(listBlock);
 
+                await ExampleJsInterop.InitGoJS();
+                AddNewBlocksToPalette();
                 ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
             }

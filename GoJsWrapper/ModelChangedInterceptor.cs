@@ -11,12 +11,18 @@ namespace GoJsWrapper
     internal class ModelChangedInterceptor
     {
         public delegate void ModelChangedHandler(string model);
-        public event ModelChangedHandler ModelChanged;
+        public event ModelChangedHandler DiagramModelChanged;
+        public event ModelChangedHandler PaletteModelChanged;
 
         [JSInvokable]
-        public void OnModelChangedEvent(string model)
+        public void OnDiagramModelChangedEvent(string model)
         {
-            ModelChanged?.Invoke(model);
+            DiagramModelChanged?.Invoke(model);
+        }
+        [JSInvokable]
+        public void OnPaletteModelChangedEvent(string model)
+        {
+            PaletteModelChanged?.Invoke(model);
         }
     }
 

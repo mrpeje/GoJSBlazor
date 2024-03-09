@@ -9,49 +9,32 @@ using System.Text.Json;
 
 namespace GoJsWrapper
 {
-    // This class provides an example of how JavaScript functionality can be wrapped
-    // in a .NET class for easy consumption. The associated JavaScript module is
-    // loaded on demand when first needed.
-    //
-    // This class can be registered as scoped DI service and then injected into Blazor
-    // components for use.
-
     public class GoJsNetWrapper : IAsyncDisposable
     {
-        public DiagramModel Model;
-        private DotNetObjectReference<ModelChangedInterceptor> ModelHelperRef;
-        private ModelChangedInterceptor ModelHelper;
-        public SelectionChangedEventInterceptor SelectionEventInterceptor;
-        private readonly Lazy<Task<IJSObjectReference>> moduleTask;
         private readonly IJSRuntime _jsRuntime;
         private string JsonModel { get; set; }
-        List<UnitCategoryModel> Blocks { get; set; }
-
-        private DotNetObjectReference<CustomEventHelper> Reference;
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
+        private DotNetObjectReference<ModelChangedInterceptor> ReferenceModelInterceptor;
+        private ModelChangedInterceptor ModelInterceptor;
 
+        public SelectionChangedEventInterceptor SelectionEventInterceptor;
+        public Diagram Diagram;
+        public Palette Palette;
 
         public GoJsNetWrapper(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            Model = new DiagramModel(_jsRuntime);
-            ModelHelper = new ModelChangedInterceptor();
+            Diagram = new Diagram(_jsRuntime);
+            Palette = new Palette(_jsRuntime);
+            ModelInterceptor = new ModelChangedInterceptor();
             SelectionEventInterceptor = new SelectionChangedEventInterceptor();
-            ModelHelper.ModelChanged += Model.UpdateDiagramModel;
+            ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
+            ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
+        }               
 
-        }        
-        
-
-        public async Task AddBlockToPallete(List<UnitCategoryModel> BlockTypes)
+        public async ValueTask InitGoJS()
         {
-            var BlockTypesJson = JsonConvert.SerializeObject(BlockTypes);
-            await _jsRuntime.InvokeAsync<string>("initPallete", BlockTypesJson);
-        }
-
-        public async ValueTask InitGoJS(List<UnitCategoryModel> BlockTypes = null)
-        {
-            var BlockTypesJson = JsonConvert.SerializeObject(BlockTypes);
-            await _jsRuntime.InvokeAsync<string>("initDiagram", BlockTypesJson);
+            await _jsRuntime.InvokeAsync<string>("initDiagram");
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
         }
@@ -77,18 +60,13 @@ namespace GoJsWrapper
         }
         public async ValueTask DisposeAsync()
         {
-            if (moduleTask.IsValueCreated)
-            {
-                var module = await moduleTask.Value;
-                await module.DisposeAsync();
-            }
+
         }
         public void SetupModelChangedEvent()
         {
-            ModelHelperRef = DotNetObjectReference.Create(ModelHelper);
-            _jsRuntime.InvokeVoidAsync("subscribeModelChangedEvent", ModelHelperRef);
+            ReferenceModelInterceptor = DotNetObjectReference.Create(ModelInterceptor);
+            _jsRuntime.InvokeVoidAsync("subscribeModelChangedEvent", ReferenceModelInterceptor);
         }
-
 
         public void SetupSelectionChangedEvent()
         {

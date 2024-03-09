@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GoJsWrapper.Interfaces
 {
-    internal interface IDiagramModel
+    internal interface IDiagram
     {
         public Task AddBlock(UnitModel block);
         public Task RemoveBlock(string blockId);

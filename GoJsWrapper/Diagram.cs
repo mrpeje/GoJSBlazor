@@ -1,4 +1,5 @@
 ﻿using GoJsWrapper.Interfaces;
+using GoJsWrapper.Models;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System;
@@ -8,29 +9,28 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GoJsWrapper.Models
+namespace GoJsWrapper
 {
-    public class DiagramModel : IDiagramModel
+    public class Diagram : IDiagram
     {
         private readonly IJSRuntime _jsRuntime;
-        public DiagramModel(IJSRuntime jsRuntime)
-        {
-            _jsRuntime = jsRuntime;
-            Blocks = new List<UnitModel>();
-            Links = new List<LinkModel>();
-        }
 
         [JsonProperty(PropertyName = "nodeDataArray")]
         public IEnumerable<UnitModel> Blocks { get; private set; }
 
         [JsonProperty(PropertyName = "linkDataArray")]
         public IEnumerable<LinkModel> Links { get; private set; }
-
+        public Diagram(IJSRuntime jsRuntime)
+        {
+            _jsRuntime = jsRuntime;
+            Blocks = new List<UnitModel>();
+            Links = new List<LinkModel>();
+        }
         internal void UpdateDiagramModel(string model)
         {
             try
             {
-                var parsedModel = JsonConvert.DeserializeObject<DiagramModel>(model);
+                var parsedModel = JsonConvert.DeserializeObject<Diagram>(model);
                 if (parsedModel != null)
                 {
                     Blocks = parsedModel.Blocks;
@@ -43,29 +43,19 @@ namespace GoJsWrapper.Models
             }
         }
 
-
-
-
-
-
-
-        public void AddBlock()
-        {
-
-        }
         public void ValidateNewLink(LinkModel newLink)
         {
             var from = Blocks.FirstOrDefault(e => e.Id.Equals(newLink.From));
-            if(from == null)
+            if (from == null)
             {
-                throw new BlockNotFoundException($"Block {newLink.From} not found"); 
+                throw new BlockNotFoundException($"Block {newLink.From} not found");
             }
             var to = Blocks.FirstOrDefault(e => e.Id.Equals(newLink.To));
             if (to == null)
             {
                 throw new BlockNotFoundException($"Block {newLink.To} not found");
             }
-            var portFrom = from.OutputPorts.FirstOrDefault(e=>e.Id.Equals(newLink.fromPort));
+            var portFrom = from.OutputPorts.FirstOrDefault(e => e.Id.Equals(newLink.fromPort));
             if (portFrom == null)
             {
                 throw new PortNotFoundException($"Port {newLink.fromPort} not found");
@@ -78,10 +68,10 @@ namespace GoJsWrapper.Models
         }
         public LinkModel? GetLink(LinkModel link)
         {
-           return Links.FirstOrDefault(/*e => e.From == link.From &&
+            return Links.FirstOrDefault(/*e => e.From == link.From &&
                                         e.To == link.To &&
                                         e.fromPort == link.fromPort &&
-                                        e.toPort == link.toPort*/);           
+                                        e.toPort == link.toPort*/);
         }
         public UnitModel? GetBlock(string blockId)
         {
@@ -93,7 +83,7 @@ namespace GoJsWrapper.Models
                 newBlock.InputPorts = new List<Port>();
             if (newBlock.OutputPorts == null)
                 newBlock.OutputPorts = new List<Port>();
-            if (String.IsNullOrEmpty(newBlock.Category))
+            if (string.IsNullOrEmpty(newBlock.Category))
                 newBlock.Category = "Category";
             return newBlock;
         }
@@ -117,7 +107,6 @@ namespace GoJsWrapper.Models
                 var blockJson = JsonConvert.SerializeObject(block);
                 await _jsRuntime.InvokeAsync<string>("removeBlock", blockJson);
             }
-
         }
 
         public async Task UpdateBlock(UnitModel block)
@@ -133,7 +122,7 @@ namespace GoJsWrapper.Models
 
         public async Task MoveBlock(string blockId, string newCoordinates)
         {
-            var block = Blocks.FirstOrDefault(e=>e.Id == blockId);
+            var block = Blocks.FirstOrDefault(e => e.Id == blockId);
             if (block != null)
             {
                 var blockJson = JsonConvert.SerializeObject(block);
@@ -145,7 +134,7 @@ namespace GoJsWrapper.Models
         public async Task AddLink(LinkModel newlink)
         {
             try
-            {               
+            {
                 var newlinkJson = JsonConvert.SerializeObject(newlink);
                 await _jsRuntime.InvokeAsync<string>("addLink", newlinkJson);
             }
@@ -161,7 +150,7 @@ namespace GoJsWrapper.Models
 
         public async Task RemoveLink(string linkId)
         {
-            var foundLink = Links.FirstOrDefault(e=>e.Id == linkId);
+            var foundLink = Links.FirstOrDefault(e => e.Id == linkId);
             if (foundLink != null)
             {
                 var foundLinkJson = JsonConvert.SerializeObject(foundLink);
