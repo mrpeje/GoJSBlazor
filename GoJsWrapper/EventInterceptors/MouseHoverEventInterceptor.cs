@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GoJsWrapper.EventInterceptors
 {
-    public class OnMouseHoverEventInterceptor
+    public class MouseHoverEventInterceptor
     {
         public delegate void MouseHoverHandler(string id);
         public event MouseHoverHandler NodeMouseHover;

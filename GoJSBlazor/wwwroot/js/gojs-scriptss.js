@@ -433,7 +433,7 @@ function initDiagram(netReference) {
         });
     }
 
-function subscribeBlockMovedEvent(netRefreneceBlockPositionChanged) {
+    function subscribeBlockMovedEvent(netRefreneceBlockPositionChanged) {
         myDiagram.addModelChangedListener(evt => {
             if (!evt.isTransactionFinished) return;
             var txn = evt.object; 
@@ -443,6 +443,21 @@ function subscribeBlockMovedEvent(netRefreneceBlockPositionChanged) {
                 if (e.change === go.ChangedEvent.Property) {
                     if (e.propertyName === "loc")
                         netRefreneceBlockPositionChanged.invokeMethod('OnBlockPositionChangedEvent', e.object.name );
+                }
+            });
+        });
+    }
+    function subscribeUndoRedoEvent(netRef) {
+        myDiagram.addModelChangedListener(evt => {
+            if (!evt.isTransactionFinished) return;
+            var txn = evt.object;
+            if (txn === null) return;
+            txn.changes.each(e => {
+                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedUndo") {
+                    netRef.invokeMethod('OnUndoEvent');                
+                }
+                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedRedo") {
+                    netRef.invokeMethod('OnRedoEvent');
                 }
             });
         });

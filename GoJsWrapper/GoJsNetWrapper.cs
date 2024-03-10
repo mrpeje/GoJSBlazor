@@ -8,23 +8,31 @@ using System.Reflection;
 using System.Text.Json;
 
 
+
 namespace GoJsWrapper
 {
     public class GoJsNetWrapper : IAsyncDisposable
     {
+
+
         private readonly IJSRuntime _jsRuntime;
         private string JsonModel { get; set; }
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
         private DotNetObjectReference<ModelChangedInterceptor> ReferenceModelInterceptor;
         private DotNetObjectReference<BlockPositionChangedEventInterceptor> ReferenceBlockPositionChangedInterceptor;
-        private DotNetObjectReference<OnMouseHoverEventInterceptor> ReferenceMouseHoverEventInterceptor;
+        private DotNetObjectReference<MouseHoverEventInterceptor> ReferenceMouseHoverEventInterceptor;
+        private DotNetObjectReference<UndoRedoEventInterceptor> ReferenceUndoRedoEventInterceptor;
         private ModelChangedInterceptor ModelInterceptor;
 
-        public OnMouseHoverEventInterceptor MouseHoverEventInterceptor;
+        public MouseHoverEventInterceptor MouseHoverEventInterceptor;
         public SelectionChangedEventInterceptor SelectionEventInterceptor;
         public BlockPositionChangedEventInterceptor BlockPositionEventInterceptor;
+        public UndoRedoEventInterceptor UndoRedoEventInterceptor;
         public Diagram Diagram;
         public Palette Palette;
+
+        public delegate void DiagramLoadedHandler();
+        public event DiagramLoadedHandler DiagramLoaded;
 
         public GoJsNetWrapper(IJSRuntime jsRuntime)
         {
@@ -34,7 +42,8 @@ namespace GoJsWrapper
             ModelInterceptor = new ModelChangedInterceptor();
             SelectionEventInterceptor = new SelectionChangedEventInterceptor();
             BlockPositionEventInterceptor = new BlockPositionChangedEventInterceptor();
-            MouseHoverEventInterceptor = new OnMouseHoverEventInterceptor();
+            MouseHoverEventInterceptor = new MouseHoverEventInterceptor();
+            UndoRedoEventInterceptor = new UndoRedoEventInterceptor();
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
@@ -46,8 +55,26 @@ namespace GoJsWrapper
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
             SetupBlockPositionChangedEvent();
+            SetupBlockUndoRedoEvent();
         }
+        public async Task LoadDiagram(List<BlockModel> model, List<LinkModel> links, List<BlockModel> palette)
+        {
+            foreach (var modelBlock in model)
+            {
+                await Diagram.AddBlock(modelBlock);
+            }
 
+            foreach (var link in links)
+            {
+                await Diagram.AddLink(link);
+            }
+
+            foreach (var paletteBlock in palette)
+            {
+                await Palette.AddBlock(paletteBlock);
+            }
+            DiagramLoaded?.Invoke();
+        }
         public async Task<string> GetModelJson()
         {
             JsonModel = await _jsRuntime.InvokeAsync<string>("getModelJson");
@@ -62,11 +89,6 @@ namespace GoJsWrapper
             return await _jsRuntime.InvokeAsync<string>("SetupDiagram");
         }
 
-        public async Task<string> LoadDiagram()
-        {
-
-            return await _jsRuntime.InvokeAsync<string>("loadDiagram");
-        }
         public async ValueTask DisposeAsync()
         {
 
@@ -90,7 +112,13 @@ namespace GoJsWrapper
         public void SetupMouseHoverEvent()
         {
             ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
-            //_jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceMouseHoverEventInterceptor);
+
         }
+        public void SetupBlockUndoRedoEvent()
+        {
+            ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
+            _jsRuntime.InvokeVoidAsync("subscribeUndoRedoEvent", ReferenceUndoRedoEventInterceptor);
+        }
+        
     }
 }

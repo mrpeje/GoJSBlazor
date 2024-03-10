@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using GoJsWrapper;
 using GoJsWrapper.Models;
 using Microsoft.AspNetCore.Components.Routing;
+using Newtonsoft.Json;
 
 namespace GoJSBlazor.Pages {
     public partial class Index : ComponentBase
@@ -27,14 +28,14 @@ namespace GoJSBlazor.Pages {
             block.Coordinates = "50 50";
             await ExampleJsInterop.Diagram.MoveBlock(block.Id, block.Coordinates);
         }
-        private void HandleCustomEvent(string args)
+        private void HandleCustomEvent(/*string args*/)
         {
-            NodeId = args.ToString();
+            NodeId = "Undo".ToString();
             StateHasChanged();
         }
-        private void HandleCustomEvent2(string args)
+        private void HandleCustomEvent2(/*string args*/)
         {
-            Text2 = args.ToString();
+            Text2 = "Redo".ToString();
             StateHasChanged();
         }
         protected async void UpdateBlock()
@@ -136,7 +137,14 @@ namespace GoJSBlazor.Pages {
         }
         protected async void Load()
         {
-            await ExampleJsInterop.LoadDiagram();
+            var a = @"[{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":null,""color"":""red"",""description"":""Category1""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""0 70"",""color"":""green"",""description"":""Category2""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""0 140"",""color"":""yellow"",""description"":""Category3""}]";
+            var b = @"[{""name"":""Unit One"",""category"":""Cat1"",""key"":""1"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":""asdasd"",""portColor"":""#fae3d7""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""#eaeef8""},{""portId"":""right1"",""name"":null,""description"":null,""portColor"":""#fadfe5""}],""loc"":""101 204"",""color"":""#66d6d1"",""description"":""asd""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""-100 300.40625"",""color"":""yellow"",""description"":""Category3""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""262 302.40625"",""color"":""green"",""description"":""Category2""},{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":""86 104.40625"",""color"":""red"",""description"":""Category1""}]";
+            var c = @"[]";
+            var Blocks = JsonConvert.DeserializeObject<List<BlockModel>>(b);
+            var Palette = JsonConvert.DeserializeObject<List<BlockModel>>(a);
+            var Links = JsonConvert.DeserializeObject<List<LinkModel>>(c);
+
+            await ExampleJsInterop.LoadDiagram(Blocks, Links, Palette);
         }
         protected async override void OnAfterRender(bool firstRender)
         {
@@ -150,8 +158,8 @@ namespace GoJSBlazor.Pages {
                 //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
 
-                ExampleJsInterop.MouseHoverEventInterceptor.LinkMouseHover += HandleCustomEvent;
-                ExampleJsInterop.MouseHoverEventInterceptor.NodeMouseHover += HandleCustomEvent2;
+                ExampleJsInterop.UndoRedoEventInterceptor.Undo += HandleCustomEvent;
+                ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
             }
         }
 
