@@ -1,6 +1,6 @@
 ﻿    var netRefreneceVar = 1;
 
-function initDiagram(netReference, netRef) {
+function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
 
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
     const $ = go.GraphObject.make;  //for conciseness in defining node templates
@@ -8,20 +8,41 @@ function initDiagram(netReference, netRef) {
 
 
         myDiagram = $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
-            {
-                "undoManager.isEnabled": true,  // enable undo & redo
-                "ModelChanged": e => {
-                    if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedUndo") {
-                        netRef.invokeMethod('OnUndoEvent');
-                    }
-                    if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedRedo") {
-                        netRef.invokeMethod('OnRedoEvent');
-                    }
-                },
-            });
-        myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
-            netRef.invokeMethod('OnRedoEvent');
+        {
+            "undoManager.isEnabled": true,  // enable undo & redo
+            "ModelChanged": e => {
+                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedUndo") {
+                    netRefRedoUndo.invokeMethod('OnUndoEvent');
+                }
+                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedRedo") {
+                    netRefRedoUndo.invokeMethod('OnRedoEvent');
+                }
+            },
         });
+
+    myDiagram.contextMenu =
+        $("ContextMenu",
+            $("ContextMenuButton",
+                $(go.TextBlock, "Undo"),
+                { click: (e, obj) => e.diagram.commandHandler.undo() },
+                new go.Binding("visible", "", o => o.diagram.commandHandler.canUndo()).ofObject()),
+            $("ContextMenuButton",
+                $(go.TextBlock, "Redo"),
+                { click: (e, obj) => e.diagram.commandHandler.redo() },
+                new go.Binding("visible", "", o => o.diagram.commandHandler.canRedo()).ofObject()),
+            $("ContextMenuButton",
+                $(go.TextBlock, "Paste"),
+                { click: (e, obj) => e.diagram.commandHandler.pasteSelection() },
+                new go.Binding("visible", "", o => o.diagram.commandHandler.canPasteSelection()).ofObject()),
+            $("ContextMenuButton",
+                $(go.TextBlock, "Cut"),
+                { click: (e, obj) => e.diagram.commandHandler.cutSelection() },
+                new go.Binding("visible", "", o => o.diagram.commandHandler.canCutSelection()).ofObject()),
+            $("ContextMenuButton",
+                $(go.TextBlock, "Copy"),
+                { click: (e, obj) => e.diagram.commandHandler.copySelection() },
+                new go.Binding("visible", "", o => o.diagram.commandHandler.canCopySelection()).ofObject())
+        );
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => {
             const button = document.getElementById("SaveButton");
@@ -39,12 +60,27 @@ function initDiagram(netReference, netRef) {
                     (e, obj) => e.diagram.commandHandler.copySelection()),
                 makeButton("Delete",
                     (e, obj) => e.diagram.commandHandler.deleteSelection()),
-                $(go.Shape, "LineH", { strokeWidth: 2, height: 1, stretch: go.GraphObject.Horizontal }),
-                makeButton("Add left port",
-                    (e, obj) => addPort("left")),
-                makeButton("Add right port",
-                    (e, obj) => addPort("right")),
+                makeButton("Undo",
+                    (e, obj) => e.diagram.commandHandler.undo()),
+                makeButton("Edit",
+                    (e, obj) => e.diagram.commandHandler.editTextBlock()),
+                makeButton("Cut",
+                    (e, obj) => e.diagram.commandHandler.cutSelection()),
+                makeButton("Paste",
+                    (e, obj) => e.diagram.commandHandler.pasteSelection()),
+                makeButton("Properties",
+                    (e, obj) => netRefBlockContext.invokeMethod('OnContextPropertiesEvent', e.diagram.selection.first().key.toString())),
+                makeButton("Help",
+                    (e, obj) => netRefBlockContext.invokeMethod('OnContextHelpEvent', e.diagram.selection.first().key.toString())),
+                makeButton("Open",
+                    (e, obj) => netRefBlockContext.invokeMethod('OnContextOpenEvent', e.diagram.selection.first().key.toString())),
             );
+    const linkMenu =  // context menu for each Node
+        $("ContextMenu",
+            makeButton("Delete",
+                (e, obj) => e.diagram.commandHandler.deleteSelection()),
+
+        );
 
         const portSize = new go.Size(8, 8);
 
@@ -186,7 +222,8 @@ function initDiagram(netReference, netRef) {
                     reshapable: true,
                     resegmentable: true,
                     relinkableFrom: true,
-                    relinkableTo: true
+                    relinkableTo: true,
+                    contextMenu: linkMenu
                 },
                 {
                     mouseHover: (e, obj) => {
@@ -467,7 +504,7 @@ function subscribeAddedEvent(netRefrenece) {
         var addedArray = [];
         txn.changes.each(e => {
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray" && e.object.key !== null) {
-                netRefrenece.invokeMethod('OnLinkAddedEvent', e.newValue.key);
+                netRefrenece.invokeMethod('OnLinkAddedEvent', JSON.stringify(e.newValue.key));
             }
             if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray" ) {
                 netRefrenece.invokeMethod('OnLinkRemoveEvent', e.oldValue.key);

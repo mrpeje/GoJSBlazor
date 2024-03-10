@@ -11,7 +11,7 @@ namespace GoJsWrapper.EventInterceptors
 {
     public class AddRemoveEventInterceptor
     {
-        public delegate void AddRemoveLinkHandler(int id);
+        public delegate void AddRemoveLinkHandler(string id);
 
         public delegate void AddRemoveBlockHandler(List<BlockModel> deletedBlocks);
 
@@ -23,7 +23,7 @@ namespace GoJsWrapper.EventInterceptors
 
 
         [JSInvokable]
-        public void OnLinkAddedEvent(int id) => LinkAddedEvent?.Invoke(id);
+        public void OnLinkAddedEvent(string id) => LinkAddedEvent?.Invoke(id);
         [JSInvokable]
         public void OnBlockAddedEvent(string jsonNewdBlocks)
         {
@@ -39,6 +39,6 @@ namespace GoJsWrapper.EventInterceptors
                 BlocksRemoveEvent?.Invoke(deletedBlocks);
         }
         [JSInvokable]
-        public void OnLinkRemoveEvent(int id) => LinkRemoveEvent?.Invoke(id);        
+        public void OnLinkRemoveEvent(string id) => LinkRemoveEvent?.Invoke(id);        
     }
 }

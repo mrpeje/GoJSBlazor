@@ -20,8 +20,10 @@ namespace GoJsWrapper
         private DotNetObjectReference<MouseHoverEventInterceptor> ReferenceMouseHoverEventInterceptor;
         private DotNetObjectReference<UndoRedoEventInterceptor> ReferenceUndoRedoEventInterceptor;
         private DotNetObjectReference<AddRemoveEventInterceptor> ReferenceAddedEventInterceptor;
+        private DotNetObjectReference<BlockContextMenuEventsInterceptor> ReferenceBlockContextMenuEventsInterceptor;
         private ModelChangedInterceptor ModelInterceptor;
 
+        public BlockContextMenuEventsInterceptor BlockContextMenuEventsInterceptor;
         public MouseHoverEventInterceptor MouseHoverEventInterceptor;
         public SelectionChangedEventInterceptor SelectionEventInterceptor;
         public BlockPositionChangedEventInterceptor BlockPositionEventInterceptor;
@@ -45,15 +47,20 @@ namespace GoJsWrapper
             MouseHoverEventInterceptor = new MouseHoverEventInterceptor();
             UndoRedoEventInterceptor = new UndoRedoEventInterceptor();
             AddedEventInterceptor = new AddRemoveEventInterceptor();
+            BlockContextMenuEventsInterceptor = new BlockContextMenuEventsInterceptor();
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
 
         public async Task InitGoJS()
         {
+            ReferenceBlockContextMenuEventsInterceptor = DotNetObjectReference.Create(BlockContextMenuEventsInterceptor);
             ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
             ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
-            await _jsRuntime.InvokeAsync<string>("initDiagram", ReferenceMouseHoverEventInterceptor, ReferenceUndoRedoEventInterceptor);
+            await _jsRuntime.InvokeAsync<string>("initDiagram", 
+                                                ReferenceMouseHoverEventInterceptor, 
+                                                ReferenceUndoRedoEventInterceptor,
+                                                ReferenceBlockContextMenuEventsInterceptor);
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
             SetupBlockPositionChangedEvent(); 
@@ -108,7 +115,7 @@ namespace GoJsWrapper
         {
             ReferenceAddedEventInterceptor = DotNetObjectReference.Create(AddedEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeAddedEvent", ReferenceAddedEventInterceptor);
-        }
+        }                 
         
     }
 }
