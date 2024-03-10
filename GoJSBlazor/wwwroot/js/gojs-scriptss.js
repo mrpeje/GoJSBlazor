@@ -1,6 +1,6 @@
 ﻿    var netRefreneceVar = 1;
 
-function initDiagram(netReference) {
+function initDiagram(netReference, netRef) {
 
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
@@ -8,7 +8,15 @@ function initDiagram(netReference) {
     
         myDiagram = $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
             {
-                "undoManager.isEnabled": true  // enable undo & redo
+                "undoManager.isEnabled": true,  // enable undo & redo
+                "ModelChanged": e => {
+                    if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedUndo") {
+                        netRef.invokeMethod('OnUndoEvent');
+                    }
+                    if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedRedo") {
+                        netRef.invokeMethod('OnRedoEvent');
+                    }
+                },
             });
 
         // when the document is modified, add a "*" to the title and enable the "Save" button
@@ -443,21 +451,6 @@ function initDiagram(netReference) {
                 if (e.change === go.ChangedEvent.Property) {
                     if (e.propertyName === "loc")
                         netRefreneceBlockPositionChanged.invokeMethod('OnBlockPositionChangedEvent', e.object.name );
-                }
-            });
-        });
-    }
-    function subscribeUndoRedoEvent(netRef) {
-        myDiagram.addModelChangedListener(evt => {
-            if (!evt.isTransactionFinished) return;
-            var txn = evt.object;
-            if (txn === null) return;
-            txn.changes.each(e => {
-                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedUndo") {
-                    netRef.invokeMethod('OnUndoEvent');                
-                }
-                if (e.change === go.ChangedEvent.Transaction && e.propertyName === "FinishedRedo") {
-                    netRef.invokeMethod('OnRedoEvent');
                 }
             });
         });

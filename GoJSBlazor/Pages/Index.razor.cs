@@ -30,7 +30,7 @@ namespace GoJSBlazor.Pages {
         }
         private void HandleCustomEvent(/*string args*/)
         {
-            NodeId = "Undo".ToString();
+            NodeId = "DiagramLoaded".ToString();
             StateHasChanged();
         }
         private void HandleCustomEvent2(/*string args*/)
@@ -158,7 +158,7 @@ namespace GoJSBlazor.Pages {
                 //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
 
-                ExampleJsInterop.UndoRedoEventInterceptor.Undo += HandleCustomEvent;
+                ExampleJsInterop.DiagramLoaded += HandleCustomEvent;
                 ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
             }
         }

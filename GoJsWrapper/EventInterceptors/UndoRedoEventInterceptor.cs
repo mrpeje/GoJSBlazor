@@ -14,10 +14,10 @@ namespace GoJsWrapper.EventInterceptors
         public event UndoRedoHandler Redo;
 
         [JSInvokable]
-        private void OnUndoEvent() => Undo?.Invoke();
+        public void OnUndoEvent() => Undo?.Invoke();
         
         [JSInvokable]
-        private void OnRedoEvent() => Redo?.Invoke();
+        public void OnRedoEvent() => Redo?.Invoke();
 
     }
 }

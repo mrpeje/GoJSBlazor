@@ -50,12 +50,13 @@ namespace GoJsWrapper
 
         public async ValueTask InitGoJS()
         {
-            SetupMouseHoverEvent();
-            await _jsRuntime.InvokeAsync<string>("initDiagram", ReferenceMouseHoverEventInterceptor);
+            ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
+            ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
+            await _jsRuntime.InvokeAsync<string>("initDiagram", ReferenceMouseHoverEventInterceptor, ReferenceUndoRedoEventInterceptor);
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
             SetupBlockPositionChangedEvent();
-            SetupBlockUndoRedoEvent();
+            
         }
         public async Task LoadDiagram(List<BlockModel> model, List<LinkModel> links, List<BlockModel> palette)
         {
@@ -108,17 +109,6 @@ namespace GoJsWrapper
         {
             ReferenceBlockPositionChangedInterceptor = DotNetObjectReference.Create(BlockPositionEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceBlockPositionChangedInterceptor);
-        }
-        public void SetupMouseHoverEvent()
-        {
-            ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
-
-        }
-        public void SetupBlockUndoRedoEvent()
-        {
-            ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
-            _jsRuntime.InvokeVoidAsync("subscribeUndoRedoEvent", ReferenceUndoRedoEventInterceptor);
-        }
-        
+        }        
     }
 }
