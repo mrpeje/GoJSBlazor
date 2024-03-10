@@ -13,21 +13,21 @@ namespace GoJsWrapper
 {
     public class GoJsNetWrapper : IAsyncDisposable
     {
-
-
         private readonly IJSRuntime _jsRuntime;
-        private string JsonModel { get; set; }
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
         private DotNetObjectReference<ModelChangedInterceptor> ReferenceModelInterceptor;
         private DotNetObjectReference<BlockPositionChangedEventInterceptor> ReferenceBlockPositionChangedInterceptor;
         private DotNetObjectReference<MouseHoverEventInterceptor> ReferenceMouseHoverEventInterceptor;
         private DotNetObjectReference<UndoRedoEventInterceptor> ReferenceUndoRedoEventInterceptor;
+        private DotNetObjectReference<AddRemoveEventInterceptor> ReferenceAddedEventInterceptor;
         private ModelChangedInterceptor ModelInterceptor;
 
         public MouseHoverEventInterceptor MouseHoverEventInterceptor;
         public SelectionChangedEventInterceptor SelectionEventInterceptor;
         public BlockPositionChangedEventInterceptor BlockPositionEventInterceptor;
         public UndoRedoEventInterceptor UndoRedoEventInterceptor;
+        public AddRemoveEventInterceptor AddedEventInterceptor;
+
         public Diagram Diagram;
         public Palette Palette;
 
@@ -44,19 +44,21 @@ namespace GoJsWrapper
             BlockPositionEventInterceptor = new BlockPositionChangedEventInterceptor();
             MouseHoverEventInterceptor = new MouseHoverEventInterceptor();
             UndoRedoEventInterceptor = new UndoRedoEventInterceptor();
+            AddedEventInterceptor = new AddRemoveEventInterceptor();
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
 
-        public async ValueTask InitGoJS()
+        public async Task InitGoJS()
         {
             ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
             ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
             await _jsRuntime.InvokeAsync<string>("initDiagram", ReferenceMouseHoverEventInterceptor, ReferenceUndoRedoEventInterceptor);
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
-            SetupBlockPositionChangedEvent();
-            
+            SetupBlockPositionChangedEvent(); 
+            SetupAddedEvent();
+
         }
         public async Task LoadDiagram(List<BlockModel> model, List<LinkModel> links, List<BlockModel> palette)
         {
@@ -76,15 +78,7 @@ namespace GoJsWrapper
             }
             DiagramLoaded?.Invoke();
         }
-        public async Task<string> GetModelJson()
-        {
-            JsonModel = await _jsRuntime.InvokeAsync<string>("getModelJson");
-            return JsonModel;
-        }
-        public async Task SaveDiagram()
-        {
 
-        }
         public async Task<string> SelectBlockById(string id)
         {
             return await _jsRuntime.InvokeAsync<string>("SetupDiagram");
@@ -109,6 +103,12 @@ namespace GoJsWrapper
         {
             ReferenceBlockPositionChangedInterceptor = DotNetObjectReference.Create(BlockPositionEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeBlockMovedEvent", ReferenceBlockPositionChangedInterceptor);
-        }        
+        }
+        public void SetupAddedEvent()
+        {
+            ReferenceAddedEventInterceptor = DotNetObjectReference.Create(AddedEventInterceptor);
+            _jsRuntime.InvokeVoidAsync("subscribeAddedEvent", ReferenceAddedEventInterceptor);
+        }
+        
     }
 }

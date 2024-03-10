@@ -28,9 +28,9 @@ namespace GoJSBlazor.Pages {
             block.Coordinates = "50 50";
             await ExampleJsInterop.Diagram.MoveBlock(block.Id, block.Coordinates);
         }
-        private void HandleCustomEvent(/*string args*/)
+        private void HandleCustomEvent(List<BlockModel> blocks)
         {
-            NodeId = "DiagramLoaded".ToString();
+            NodeId = blocks.Count.ToString();
             StateHasChanged();
         }
         private void HandleCustomEvent2(/*string args*/)
@@ -158,8 +158,8 @@ namespace GoJSBlazor.Pages {
                 //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
 
-                ExampleJsInterop.DiagramLoaded += HandleCustomEvent;
-                ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
+                ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleCustomEvent;
+                //ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
             }
         }
 

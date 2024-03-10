@@ -3,9 +3,10 @@
 function initDiagram(netReference, netRef) {
 
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
-        // For details, see https://gojs.net/latest/intro/buildingObjects.html
-        const $ = go.GraphObject.make;  //for conciseness in defining node templates
-    
+    const $ = go.GraphObject.make;  //for conciseness in defining node templates
+
+
+
         myDiagram = $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
             {
                 "undoManager.isEnabled": true,  // enable undo & redo
@@ -18,7 +19,9 @@ function initDiagram(netReference, netRef) {
                     }
                 },
             });
-
+        myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
+            netRef.invokeMethod('OnRedoEvent');
+        });
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => {
             const button = document.getElementById("SaveButton");
@@ -448,15 +451,44 @@ function initDiagram(netReference, netRef) {
             if (txn === null) return;
             txn.changes.each(e => { 
                 //if (e.modelChange !== "nodeDataArray") return;
-                if (e.change === go.ChangedEvent.Property) {
-                    if (e.propertyName === "loc")
-                        netRefreneceBlockPositionChanged.invokeMethod('OnBlockPositionChangedEvent', e.object.name );
+                if (e.change === go.ChangedEvent.Property && e.propertyName === "loc") {
+                    netRefreneceBlockPositionChanged.invokeMethod('OnBlockPositionChangedEvent', e.object.name );
                 }
+
             });
         });
     }
-
-
+function subscribeAddedEvent(netRefrenece) {
+    myDiagram.addModelChangedListener(evt => {
+        if (!evt.isTransactionFinished) return;
+        var txn = evt.object;
+        if (txn === null) return;
+        var deletedArray = [];
+        var addedArray = [];
+        txn.changes.each(e => {
+            if (e.change === go.ChangedEvent.Insert && e.modelChange === "linkDataArray" && e.object.key !== null) {
+                netRefrenece.invokeMethod('OnLinkAddedEvent', e.newValue.key);
+            }
+            if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray" ) {
+                netRefrenece.invokeMethod('OnLinkRemoveEvent', e.oldValue.key);
+            }
+            if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
+                addedArray.push(e.newValue);    
+            }
+            if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+                deletedArray.push(e.oldValue);
+                
+            }
+        });
+        if (deletedArray.length !== 0) {
+            netRefrenece.invokeMethod('OnBlocksRemoveEvent', JSON.stringify(deletedArray));
+        }
+        if (addedArray.length !== 0) {
+            netRefrenece.invokeMethod('OnBlockAddedEvent', JSON.stringify(addedArray) );
+        }
+            
+    });
+}
 
     function removeBlock(block) {
         var jsonBlock = JSON.parse(block);
