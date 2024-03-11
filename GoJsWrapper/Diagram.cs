@@ -1,40 +1,37 @@
 ﻿using GoJsWrapper.Interfaces;
 using GoJsWrapper.Models;
+using GoJsWrapper.Models.DTO;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Drawing;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace GoJsWrapper
 {
-    public class Diagram : IDiagram
+    public class Diagram 
     {
         private readonly IJSRuntime _jsRuntime;
 
-        [JsonProperty(PropertyName = "nodeDataArray")]
-        public IEnumerable<BlockModel> Blocks { get; private set; }
-
-        [JsonProperty(PropertyName = "linkDataArray")]
-        public IEnumerable<LinkModel> Links { get; private set; }
+        private DiagramModel Model { get; set; }
         public Diagram(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            Blocks = new List<BlockModel>();
-            Links = new List<LinkModel>();
+            Model = new DiagramModel();
+            Model.Blocks = new List<BlockModel>();
+            Model.Links = new List<LinkModel>();
         }
+
         internal void UpdateDiagramModel(string model)
         {
             try
             {
-                var parsedModel = JsonConvert.DeserializeObject<Diagram>(model);
+                var parsedModel = JsonConvert.DeserializeObject<DiagramModel>(model);
                 if (parsedModel != null)
                 {
-                    Blocks = parsedModel.Blocks;
-                    Links = parsedModel.Links;
+                    Model.Blocks = parsedModel.Blocks;
+                    Model.Links = parsedModel.Links;
                 }
             }
             catch (Exception ex)
@@ -43,152 +40,128 @@ namespace GoJsWrapper
             }
         }
 
-        public void ValidateNewLink(LinkModel newLink)
+
+        public BlockModel GetBlockById(string id)
         {
-            var from = Blocks.FirstOrDefault(e => e.Id.Equals(newLink.From));
-            if (from == null)
+            return Model.Blocks.FirstOrDefault(e => e.Id == id);
+        }
+
+        public async Task<bool> RemoveBlock(string blockId)
+        {
+            var block = GetBlockById(blockId);
+            if (block == null)
+                return false;
+           
+            await RemoveBlockFromJsModel(block);
+            return true;
+        }
+        public async Task RemoveBlockFromJsModel(BlockModel block)
+        {
+            //Model.Blocks.Remove(block);
+            var blockJson = JsonConvert.SerializeObject(block);
+            await _jsRuntime.InvokeAsync<string>("removeBlock", blockJson);
+        }
+        public async Task<bool> UpdateBlock(Block blockUpdate, string blockId)
+        {
+            var block = GetBlockById(blockId);
+            if (block == null)
+                return false;
+            block.Description = blockUpdate.Description;
+            block.Name = blockUpdate.Name;
+            block.Color = blockUpdate.Color;
+
+            await UpdateBlockJsModel(block);
+            return true;
+
+        }
+        public async Task UpdateBlockJsModel(BlockModel block)
+        {
+            var blockToUpdateJson = JsonConvert.SerializeObject(block);
+            await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson);
+
+        }
+        BlockModel TryDeleteInputPort(string portId, BlockModel block)
+        {
+            PortModel port = block.InputPorts.FirstOrDefault(e => e.Id == portId);
+            if (port == null)
+                return null;
+            block.InputPorts.Remove(port);
+            return block;
+        }
+        BlockModel TryDeleteOutputPort(string portId, BlockModel block)
+        {
+            PortModel port = block.OutputPorts.FirstOrDefault(e => e.Id == portId);
+            if (port == null)
+                return null;
+            block.OutputPorts.Remove(port);
+            return block;
+        }
+        public async Task RemovePort(string portId, BlockModel block)
+        {
+            BlockModel updatedBlock;
+            updatedBlock = TryDeleteInputPort(portId, block);
+            if (updatedBlock == null)
+                updatedBlock = TryDeleteOutputPort(portId, block);
+
+            await UpdateBlockJsModel(updatedBlock);
+        }
+
+        public async Task MoveBlockJsModel(string blockId, string newCoordinates)
+        {      
+            await _jsRuntime.InvokeAsync<string>("updateBlockPosition", blockId, newCoordinates);
+        }
+
+        public LinkModel GetLinkByParams(string fromBlock, string toBlock, string fromPort, string toPort)
+        {
+            return Model.Links.FirstOrDefault(e => e.To == toBlock &&
+                                            e.From == fromBlock &&
+                                            e.toPort == toPort &&
+                                            e.fromPort == fromPort);
+
+        }
+        public async Task AddLinkToJsModel(LinkModel newlink)
+        {
+            //Model.Links.Add(newlink);
+            var newlinkJson = JsonConvert.SerializeObject(newlink);
+            await _jsRuntime.InvokeAsync<string>("addLink", newlinkJson);
+        }
+
+        public async Task<bool> RemoveLinkFromJsModel(LinkModel link)
+        {
+            //Model.Links.Remove(link);
+            var foundLinkJson = JsonConvert.SerializeObject(link);
+            await _jsRuntime.InvokeAsync<string>("deleteLink", foundLinkJson);
+            return true;
+        }
+
+        public async Task AddBlockToJsModel(BlockModel block)
+        {
+            //Model.Blocks.Add(block);
+            var validatedBlockJson = JsonConvert.SerializeObject(block);
+            await _jsRuntime.InvokeAsync<string>("addNewBlock", validatedBlockJson);
+        }
+        public BlockModel FindBlockWithPort(string portId, string blockId)
+        {
+            return Model.Blocks.FirstOrDefault(e => e.Id == blockId &&
+                    (e.InputPorts.Any(e => e.Id == portId) || e.OutputPorts.Any(e => e.Id == portId)));
+        }
+        public DiagramModel GetModel()
+        {
+            var tmp = JsonConvert.SerializeObject(Model);
+            var model = JsonConvert.DeserializeObject<DiagramModel>(tmp);
+            return model;
+        }
+
+        public async Task Clear()
+        {
+            foreach(var block in Model.Blocks.ToList())
             {
-                throw new BlockNotFoundException($"Block {newLink.From} not found");
+                await RemoveBlockFromJsModel(block);
             }
-            var to = Blocks.FirstOrDefault(e => e.Id.Equals(newLink.To));
-            if (to == null)
+            foreach(var link in Model.Links.ToList())
             {
-                throw new BlockNotFoundException($"Block {newLink.To} not found");
+                await RemoveLinkFromJsModel(link);
             }
-            var portFrom = from.OutputPorts.FirstOrDefault(e => e.Id.Equals(newLink.fromPort));
-            if (portFrom == null)
-            {
-                throw new PortNotFoundException($"Port {newLink.fromPort} not found");
-            }
-            var portTo = to.InputPorts.FirstOrDefault(e => e.Id.Equals(newLink.toPort));
-            if (portTo == null)
-            {
-                throw new PortNotFoundException($"Port {newLink.toPort} not found");
-            }
-        }
-        public LinkModel? GetLink(LinkModel link)
-        {
-            return Links.FirstOrDefault(/*e => e.From == link.From &&
-                                        e.To == link.To &&
-                                        e.fromPort == link.fromPort &&
-                                        e.toPort == link.toPort*/);
-        }
-        public BlockModel? GetBlock(string blockId)
-        {
-            return Blocks.FirstOrDefault(/*e => e.Id.Equals(blockId)*/);
-        }
-        public BlockModel ValidateNewBlock(BlockModel newBlock)
-        {
-            if (newBlock.InputPorts == null)
-                newBlock.InputPorts = new List<PortModel>();
-            if (newBlock.OutputPorts == null)
-                newBlock.OutputPorts = new List<PortModel>();
-            if (string.IsNullOrEmpty(newBlock.Category))
-                newBlock.Category = "Category";
-            return newBlock;
-        }
-
-
-        public async Task AddBlock(BlockModel newBlock)
-        {
-            var validatedBlock = ValidateNewBlock(newBlock);
-            if (validatedBlock != null)
-            {
-                var validatedBlockJson = JsonConvert.SerializeObject(validatedBlock);
-                await _jsRuntime.InvokeAsync<string>("addNewBlock", validatedBlockJson);
-            }
-        }
-
-        public async Task RemoveBlock(string id)
-        {
-            var block = Blocks.FirstOrDefault(e => e.Id == id);
-            if (block != null)
-            {
-                var blockJson = JsonConvert.SerializeObject(block);
-                await _jsRuntime.InvokeAsync<string>("removeBlock", blockJson);
-            }
-        }
-
-        public async Task UpdateBlock(BlockModel block)
-        {
-            var blockToUpdate = Blocks.FirstOrDefault(e => e.Id == block.Id);
-            if (blockToUpdate != null)
-            {
-                var blockToUpdateJson = JsonConvert.SerializeObject(blockToUpdate);
-                await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson);
-            }
-        }
-
-
-        public async Task MoveBlock(string blockId, string newCoordinates)
-        {
-            var block = Blocks.FirstOrDefault(e => e.Id == blockId);
-            if (block != null)
-            {
-                block.Coordinates = newCoordinates;
-                await _jsRuntime.InvokeAsync<string>("updateBlockPosition", block.Id, newCoordinates);
-            }
-        }
-
-        public async Task AddLink(LinkModel newlink)
-        {
-            try
-            {
-                var newlinkJson = JsonConvert.SerializeObject(newlink);
-                await _jsRuntime.InvokeAsync<string>("addLink", newlinkJson);
-            }
-            catch (BlockNotFoundException exeptionBlockNotFound)
-            {
-
-            }
-            catch (PortNotFoundException exeptionPortNotFound)
-            {
-
-            }
-        }
-
-        public async Task RemoveLink(string linkId)
-        {
-            var foundLink = Links.FirstOrDefault(e => e.Id == linkId);
-            if (foundLink != null)
-            {
-                var foundLinkJson = JsonConvert.SerializeObject(foundLink);
-                await _jsRuntime.InvokeAsync<string>("deleteLink", foundLinkJson);
-            }
-        }
-
-
-    }
-    public class BlockNotFoundException : Exception
-    {
-        public BlockNotFoundException()
-        {
-        }
-
-        public BlockNotFoundException(string message)
-            : base(message)
-        {
-        }
-
-        public BlockNotFoundException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    public class PortNotFoundException : Exception
-    {
-        public PortNotFoundException()
-        {
-        }
-
-        public PortNotFoundException(string message)
-            : base(message)
-        {
-        }
-
-        public PortNotFoundException(string message, Exception inner)
-            : base(message, inner)
-        {
         }
     }
 }

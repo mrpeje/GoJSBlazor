@@ -1,7 +1,5 @@
-﻿    var netRefreneceVar = 1;
-
+﻿
 function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
-
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
     const $ = go.GraphObject.make;  //for conciseness in defining node templates
 
@@ -75,12 +73,12 @@ function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
                 makeButton("Open",
                     (e, obj) => netRefBlockContext.invokeMethod('OnContextOpenEvent', e.diagram.selection.first().key.toString())),
             );
-    const linkMenu =  // context menu for each Node
-        $("ContextMenu",
-            makeButton("Delete",
-                (e, obj) => e.diagram.commandHandler.deleteSelection()),
+        const linkMenu =  // context menu for each Node
+            $("ContextMenu",
+                makeButton("Delete",
+                    (e, obj) => e.diagram.commandHandler.deleteSelection()),
 
-        );
+            );
 
         const portSize = new go.Size(8, 8);
 
@@ -233,14 +231,6 @@ function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
                 new go.Binding("points").makeTwoWay(),
                 $(go.Shape, { stroke: "#2F4F4F", strokeWidth: 2 })
             );
-    
-
-        // support double-clicking in the background to add a copy of this data as a node
-        myDiagram.toolManager.clickCreatingTool.archetypeNodeData = {
-            name: "Unit",
-            leftArray: [],
-            rightArray: []
-        };
 
         myDiagram.contextMenu =
             $("ContextMenu",
@@ -507,7 +497,7 @@ function subscribeAddedEvent(netRefrenece) {
                 netRefrenece.invokeMethod('OnLinkAddedEvent', JSON.stringify(e.newValue.key));
             }
             if (e.change === go.ChangedEvent.Remove && e.modelChange === "linkDataArray" ) {
-                netRefrenece.invokeMethod('OnLinkRemoveEvent', e.oldValue.key);
+                netRefrenece.invokeMethod('OnLinkRemoveEvent', JSON.stringify(e.oldValue.key));
             }
             if (e.change === go.ChangedEvent.Insert && e.modelChange === "nodeDataArray") {
                 addedArray.push(e.newValue);    
@@ -606,11 +596,6 @@ const jsonDefault = {
     "linkFromPortIdProperty": "fromPort",
     "linkToPortIdProperty": "toPort",
     "nodeDataArray": [
-        {
-            "key": 1,"category": "Cat1","description":"asd", "name": "Unit One", "loc": "101 204", "color": "#66d6d1",
-            "leftArray": [{ "portColor": "#fae3d7", "portId": "left0", "description": "asdasd" }],
-            "rightArray": [{ "portColor": "#eaeef8", "portId": "right0" }, { "portColor": "#fadfe5", "portId": "right1" }]
-        }  
     ],
     "linkDataArray": [
        
@@ -652,5 +637,3 @@ const jsonDefault = {
             { "from": 1, "to": 2, "fromPort": "right1", "toPort": "left2" }
         ]
     }
-
-    /*window.addEventListener('DOMContentLoaded', initDiagram);*/

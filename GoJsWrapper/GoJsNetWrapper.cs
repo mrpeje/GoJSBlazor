@@ -1,9 +1,12 @@
 using GoJsWrapper.EventInterceptors;
+using GoJsWrapper.Interfaces;
 using GoJsWrapper.Models;
+using GoJsWrapper.Models.DTO;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Newtonsoft;
 using Newtonsoft.Json;
+using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 
@@ -11,7 +14,7 @@ using System.Text.Json;
 
 namespace GoJsWrapper
 {
-    public class GoJsNetWrapper : IAsyncDisposable
+    public class GoJsNetWrapper : IDiagram, IPalette
     {
         private readonly IJSRuntime _jsRuntime;
         private DotNetObjectReference<SelectionChangedEventInterceptor> ReferenceSelectionChangedInterceptor;
@@ -30,8 +33,8 @@ namespace GoJsWrapper
         public UndoRedoEventInterceptor UndoRedoEventInterceptor;
         public AddRemoveEventInterceptor AddedEventInterceptor;
 
-        public Diagram Diagram;
-        public Palette Palette;
+        private Diagram Diagram;
+        private Palette Palette;
 
         public delegate void DiagramLoadedHandler();
         public event DiagramLoadedHandler DiagramLoaded;
@@ -67,34 +70,186 @@ namespace GoJsWrapper
             SetupAddedEvent();
 
         }
-        public async Task LoadDiagram(List<BlockModel> model, List<LinkModel> links, List<BlockModel> palette)
+        public async Task<bool> AddBlock(Block newBlock)
         {
-            foreach (var modelBlock in model)
+            var block = Palette.GetPaletteBlockByCategory(newBlock.Category);
+            if (block == null)
+                return false;
+
+            await Diagram.AddBlockToJsModel(block);
+            return true;
+        }
+        public async Task<bool> AddPortToBlock(Port newPort, string blockId)
+        {
+            string portId = "";
+            var block = Diagram.GetBlockById(blockId);
+            if (block == null)
+                return false;
+
+            var port = new PortModel
             {
-                await Diagram.AddBlock(modelBlock);
+                Name = newPort.Name,
+                Color = newPort.Color,
+                Description = newPort.Description
+            };
+            if (newPort.PortType == PortType.Output)
+            {
+                portId = "right" + block.OutputPorts.Count;
+                port.Id = portId;
+                block.OutputPorts.Add(port);
+            }
+            else if (newPort.PortType == PortType.Input)
+            {
+                portId = "left" + block.InputPorts.Count;
+                port.Id = portId;
+                block.InputPorts.Add(port);
+            }
+           
+            await Diagram.UpdateBlockJsModel(block);
+            return true;            
+        }
+        public async Task<bool> RemovePortFromBlock(string portId, string blockId)
+        {
+            var blockWithPort = Diagram.FindBlockWithPort(portId, blockId);
+            if (blockWithPort == null)
+                return false;
+            await Diagram.RemovePort(portId, blockWithPort);
+            return true;
+        }
+
+        public async Task<bool> UpdateBlock(Block blockUpdate, string blockId)
+        {
+            var block = Diagram.GetBlockById(blockId);
+            if(block == null)   
+                return false;
+            block.Description = blockUpdate.Description;
+            block.Name = blockUpdate.Name;
+            block.Color = blockUpdate.Color;
+
+            await Diagram.UpdateBlockJsModel(block);
+            return true;
+
+        }
+        public async Task<bool> MoveBlock(Point newCoordinates, string blockId)
+        {
+            var block = Diagram.GetBlockById(blockId);
+            if (block == null)
+                return false;
+
+            block.Coordinates = newCoordinates.X + " " + newCoordinates.Y;
+            await Diagram.MoveBlockJsModel(blockId, block.Coordinates);
+            return true;
+        }
+
+        public async Task<bool> RemoveBlock(string blockId)
+        {
+            var block = Diagram.GetBlockById(blockId);
+            if(block == null) 
+                return false;
+
+            await Diagram.RemoveBlock(block.Id);
+            return true;
+        }
+        public async Task<bool> AddLink(Link newlink)
+        {
+            var block1 = Diagram.GetBlockById(newlink.FromBlock);
+            var block2 = Diagram.GetBlockById(newlink.ToBlock);
+            if( block1 != null && block2 != null)
+            {
+                var link = new LinkModel
+                {
+                    fromPort = newlink.FromPort,
+                    toPort = newlink.ToPort,
+                    From = newlink.FromBlock,
+                    To = newlink.ToBlock
+                };
+                await Diagram.AddLinkToJsModel(link);
+                return true;
+            }
+            return false;
+        }
+        public async Task<bool> RemoveLink(Link link)
+        {
+            var findLink = Diagram.GetLinkByParams(link.FromBlock, link.ToBlock, link.FromPort, link.ToPort);
+            if (findLink == null)
+                return false;
+
+            await Diagram.RemoveLinkFromJsModel(findLink);
+            return true;
+        }
+        public async Task<bool> RemovePaletteBlock(string id)
+        {
+            var block = Palette.FindBlock(id);
+            if( block == null) 
+                return false;
+
+            await Palette.RemoveBlockFromJsModel(block.Id);
+            return true;
+        }
+
+        public async Task<bool> AddPaletteBlock(Block block, List<Port> ports)
+        {
+            var newPaletteBlock = new BlockModel
+            {
+                Category = block.Category,
+                Color = block.Color,
+                Name = block.Name,
+                Description = block.Description,
+                InputPorts = new List<PortModel>(),
+                OutputPorts = new List<PortModel>(),
+                Id = block.Id
+            };
+            foreach (var port in ports)
+            {
+                var newPort = new PortModel
+                {
+                    Color = port.Color,
+                    Name = port.Name,
+                    Description = port.Description,
+                };
+                string portId;
+                if (port.PortType == PortType.Output)
+                {
+                    portId = "right" + newPaletteBlock.OutputPorts.Count;
+                    newPort.Id = portId;
+                    newPaletteBlock.OutputPorts.Add(newPort);
+                }
+                else if (port.PortType == PortType.Input)
+                {
+                    portId = "left" + newPaletteBlock.InputPorts.Count;
+                    newPort.Id = portId;
+                    newPaletteBlock.InputPorts.Add(newPort);
+                }
+            }
+            if(Palette.ValidateNewBlock(newPaletteBlock))
+            {
+                await Palette.AddBlockToJsModel(newPaletteBlock);
+                return true;
+            }
+            return false;
+        }
+
+        public DiagramModel SaveDiagramModel()
+        {
+            return Diagram.GetModel();
+        }
+        public async Task LoadDiagram(DiagramModel model)
+        {
+            await Diagram.Clear();
+            foreach (var modelBlock in model.Blocks.ToList())
+            {
+                await Diagram.AddBlockToJsModel(modelBlock);
             }
 
-            foreach (var link in links)
+            foreach (var link in model.Links.ToList())
             {
-                await Diagram.AddLink(link);
+                await Diagram.AddLinkToJsModel(link);
             }
 
-            foreach (var paletteBlock in palette)
-            {
-                await Palette.AddBlock(paletteBlock);
-            }
+
             DiagramLoaded?.Invoke();
         }
 
-        public async Task<string> SelectBlockById(string id)
-        {
-            return await _jsRuntime.InvokeAsync<string>("SetupDiagram");
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-
-        }
         public void SetupModelChangedEvent()
         {
             ReferenceModelInterceptor = DotNetObjectReference.Create(ModelInterceptor);

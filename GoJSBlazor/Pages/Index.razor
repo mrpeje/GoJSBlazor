@@ -1,25 +1,27 @@
 ﻿@page "/"
-@code{
-    
+@code {
+
 }
 <h1>GoJS / Blazor Minimal Sample</h1>
-
+<GoJsWrapper.GoJs></GoJsWrapper.GoJs>
 <div class="my-component">
-    <div id="myPaletteDiv" style="width: 100px; height: 400px; margin-right: 2px; background-color: #282c34;"></div>
-    @* <div id="myDiagramDiv" style="height: 400px; width: 400px; border: 1px solid #282c34 "></div> *@
-    <div id="myDiagramDiv" style="width:600px; height:500px; border:1px solid black"></div>
-    <button id="SaveButton" class="btn btn-primary" @onclick="() => Save()">Save</button>
+    <button class="btn btn-primary" @onclick="() => AddNewBlocksToPalette()">AddNewBlocksToPalette</button>
+    <button class="btn btn-primary" @onclick="() => RemovePaletteBlock()">RemovePaletteBlock</button>
+    <button class="btn btn-primary" @onclick="() => AddNewBlock()">AddNewBlock</button>
+    <button class="btn btn-primary" @onclick="() => Save()">Save</button>
+    <button class="btn btn-primary" @onclick="() => Load()">Load</button>
+    <button class="btn btn-primary" @onclick="() => UpdateBlockPorts()">UpdateBlock</button>
+    <button class="btn btn-primary" @onclick="() => RemoveBlockPort()">RemoveBlockPort</button>
+    <button class="btn btn-primary" @onclick="() => MoveBlock()">MoveBlock</button>
+    <button class="btn btn-primary" @onclick="() => RemoveBlockPort()">RemoveBlockPort</button>
     <button class="btn btn-primary" @onclick="() => AddLink()">AddLink</button>
     <button class="btn btn-primary" @onclick="() => RemoveLink()">RemoveLink</button>
-    <button class="btn btn-primary" @onclick="() => AddNewBlock()">AddNewBlock</button>
-    <button class="btn btn-primary" @onclick="() => UpdateBlock()">UpdateBlock</button>
-    <button class="btn btn-primary" @onclick="() => MoveBlock()">MoveBlock</button>
-    <button class="btn btn-primary" @onclick="() => RemovePaletteBlock()">RemovePaletteBlock</button>
-    <button class="btn btn-primary" @onclick="() => Load()">Load</button>
-
-    <input type="text" @bind="NodeId" />  
     <button class="btn btn-primary" @onclick='() => RemoveBlock()'>RemoveBlock</button>
     <input type="text" @bind="Text2" />
+
+
+    <input type="text" @bind="NodeId" />
+
 </div>
 Model stored in JSON format:
 <br />

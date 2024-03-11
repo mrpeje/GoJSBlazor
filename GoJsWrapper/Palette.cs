@@ -6,15 +6,23 @@ using static System.Reflection.Metadata.BlobBuilder;
 
 namespace GoJsWrapper
 {
-    public class Palette : IPalette
+    public class Palette
     {
         [JsonProperty(PropertyName = "nodeDataArray")]
-        public IEnumerable<BlockModel> Model { get; private set; }
+        private IEnumerable<BlockModel> Model { get; set; }
         private readonly IJSRuntime _jsRuntime;
         public Palette(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
             Model = new List<BlockModel>();
+        }
+        internal BlockModel FindBlock(string id)
+        {
+            return Model.FirstOrDefault(e => e.Id == id);
+        }
+        internal BlockModel? GetPaletteBlockByCategory(string category)
+        {
+            return Model.FirstOrDefault(e => e.Category == category);
         }
         internal void UpdatePaletteModel(string model)
         {
@@ -31,16 +39,14 @@ namespace GoJsWrapper
 
             }
         }
-        public async Task AddBlock(BlockModel block)
+
+        internal async Task AddBlockToJsModel(BlockModel block)
         {
-            if (ValidateNewBlock(block))
-            {
-                var validatedBlockJson = JsonConvert.SerializeObject(block);
-                await _jsRuntime.InvokeAsync<string>("addNewPaletteBlock", validatedBlockJson);
-            }
+            var validatedBlockJson = JsonConvert.SerializeObject(block);
+            await _jsRuntime.InvokeAsync<string>("addNewPaletteBlock", validatedBlockJson);
         }
 
-        private bool ValidateNewBlock(BlockModel newBlock)
+        internal bool ValidateNewBlock(BlockModel newBlock)
         {
             if(newBlock == null || newBlock.Category == null || newBlock.Id == null)
                 return false;
@@ -52,13 +58,9 @@ namespace GoJsWrapper
             return false;
         }
 
-        public async Task RemoveBlock(string blockId)
+        internal async Task RemoveBlockFromJsModel(string blockId)
         {
-            var block = Model.FirstOrDefault(e => e.Id == blockId);
-            if (block != null)
-            {
-                await _jsRuntime.InvokeAsync<string>("removePaletteBlock", block.Id);
-            }
+            await _jsRuntime.InvokeAsync<string>("removePaletteBlock", blockId);
         }
     }
 }

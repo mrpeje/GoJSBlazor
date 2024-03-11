@@ -1,4 +1,5 @@
 ﻿using GoJsWrapper.Models;
+using GoJsWrapper.Models.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace GoJsWrapper.Interfaces
 {
-    internal interface IPalette
+    public interface IPalette
     {
-        public Task AddBlock(BlockModel block);
-        public Task RemoveBlock(string blockId);
+        public Task<bool> AddPaletteBlock(Block block, List<Port> ports);
+        public Task<bool> RemovePaletteBlock(string id);
 
     }
 }

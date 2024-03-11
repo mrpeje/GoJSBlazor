@@ -4,6 +4,8 @@ using GoJsWrapper;
 using GoJsWrapper.Models;
 using Microsoft.AspNetCore.Components.Routing;
 using Newtonsoft.Json;
+using GoJsWrapper.Models.DTO;
+using System.Drawing;
 
 namespace GoJSBlazor.Pages {
     public partial class Index : ComponentBase
@@ -12,21 +14,21 @@ namespace GoJSBlazor.Pages {
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
         public string Text2 { get; set; }
+        public DiagramModel DiagramModel;
 
-        protected async void Save(string jsonModel = null)
-        {
+        //protected async void Save(string jsonModel = null)
+        //{
 
-            //await ExampleJsInterop.SaveDiagram(jsonModel);
-        }
-        protected async void SelectBlock()
-        {
-            await ExampleJsInterop.SelectBlockById(ExampleJsInterop.Diagram.Blocks.FirstOrDefault().Id);
-        }
+        //    AddNewBlocksToPalette();
+        //}
+        //protected async void SelectBlock()
+        //{
+        //    await ExampleJsInterop.SelectBlockById(ExampleJsInterop.Diagram.Blocks.FirstOrDefault().Id);
+        //}
         protected async void MoveBlock()
-        {
-            var block = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
-            block.Coordinates = "50 50";
-            await ExampleJsInterop.Diagram.MoveBlock(block.Id, block.Coordinates);
+        {           
+            var coordinates = new Point { X = 50, Y = 50 };
+            await ExampleJsInterop.MoveBlock(coordinates, "0");
         }
         private void HandleCustomEvent(List<BlockModel> blocks)
         {
@@ -38,102 +40,110 @@ namespace GoJSBlazor.Pages {
             Text2 = "Redo".ToString();
             StateHasChanged();
         }
-        protected async void UpdateBlock()
+        protected async void RemoveBlockPort()
         {
-            var block = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
+            await ExampleJsInterop.RemovePortFromBlock("right2", "0");
+        }
+        protected async void UpdateBlockPorts()
+        {
 
-            block.Name = "Name1";
-            block.Category = "Category";
-            block.Color = "#000000";
-            block.OutputPorts.FirstOrDefault().Color = "#F92C00";
-            block.InputPorts.FirstOrDefault().Color = "#F92C00";
-            block.InputPorts.FirstOrDefault().Description = "red port";
-            block.InputPorts.FirstOrDefault().Name = "red port";
-            block.Description = "New description";
-            await ExampleJsInterop.Diagram.UpdateBlock(block);
+            var port = new Port
+            {
+                Name = "Port1",
+                Color = "#F92C00",
+                Description = "red port right1",
+                PortType = PortType.Output
+            };             
+            var port2 = new Port
+            {
+                Name = "Port2",
+                Color = "blue",
+                Description = "blue port left2",
+                PortType = PortType.Input
+            };
+            await ExampleJsInterop.AddPortToBlock(port, "0");
+            await ExampleJsInterop.AddPortToBlock(port2, "0");
+
+
         }
         protected async void AddNewBlock()
         {
-            var newBlock = new BlockModel
+            var newBlock = new Block
             {
                 Name = "Name",
                 Category = "Category",
-                Id="1",
-                Description ="",
-                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "red" } },
-                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "red" } }
-                
+                Description = "New block Category2",
+                Color = "yello"                
             };
             
-            await ExampleJsInterop.Diagram.AddBlock(newBlock);
+            await ExampleJsInterop.AddBlock(newBlock);
         }
         protected async void AddNewBlocksToPalette()
         {
-            var newBlock = new BlockModel
+
+            var newBlock = new Block
             {
                 Name = "Red",
                 Category = "Category",
+                Description = "Red block Category",
+                Color = "Red",
                 Id = "0",
-                Description = "Category1",
-                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "black" } },
-                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "black" } },
-                Color = "red"
             };
-
-            await ExampleJsInterop.Palette.AddBlock(newBlock);
-            var newBlock2 = new BlockModel
+            var port1 = new Port
             {
-                Name = "Green",
-                Category = "Category2",
-                Id = "0",
-                Description = "Category2",
-                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "blue" } },
-                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "blue" } },
-                Color = "green"
-            };
-
-            await ExampleJsInterop.Palette.AddBlock(newBlock2);
-            var newBlock3 = new BlockModel
+                Name = "le",
+                Color = "black",
+                Description = "portDescr",
+                PortType = PortType.Input
+            };             
+            var port2 = new Port
             {
-                Name = "Yellow",
-                Category = "Category3",
-                Id = "0",
-                Description = "Category3",
-                InputPorts = new List<PortModel> { new PortModel() { Id = "left0", Color = "orange" } },
-                OutputPorts = new List<PortModel> { new PortModel() { Id = "right0", Color = "orange" } },
-                Color = "yellow"
+                Name = "le",
+                Color = "red",
+                Description = "portDescr2",
+                PortType = PortType.Output
             };
+            var list = new List<Port>
+            {
+                port1, port2
+            };
+            await ExampleJsInterop.AddPaletteBlock(newBlock, list);
 
-            await ExampleJsInterop.Palette.AddBlock(newBlock3);
         }
         protected async void AddLink()
         {
-            var fromBlock = ExampleJsInterop.Diagram.Blocks.FirstOrDefault();
-            var toBlock = ExampleJsInterop.Diagram.Blocks.FirstOrDefault(e=>e.Id != fromBlock.Id);
-            var newLink = new LinkModel
+            var newLink = new Link
             {
-                fromPort = "right0",
-                toPort = "left0",
-                To = toBlock.Id,
-                From = fromBlock.Id
+                FromPort = "right0",
+                ToPort = "left0",
+                ToBlock = "0",
+                FromBlock = "02"
             };
-            await ExampleJsInterop.Diagram.AddLink(newLink);
-        }
-        protected async void RemoveBlock()
-        {
-
-            await ExampleJsInterop.Diagram.RemoveBlock(NodeId);
-        }
-        protected async void RemovePaletteBlock()
-        {
-            await ExampleJsInterop.Palette.RemoveBlock(ExampleJsInterop.Palette.Model.FirstOrDefault().Id);
+            await ExampleJsInterop.AddLink(newLink);
         }
         protected async void RemoveLink()
         {
-            var linkId = "1";
-            var link = ExampleJsInterop.Diagram.Links.FirstOrDefault(e => e.Id == linkId);
-            if( link != null)
-                await ExampleJsInterop.Diagram.RemoveLink(link.Id);
+            var newLink = new Link
+            {
+                FromPort = "right0",
+                ToPort = "left0",
+                ToBlock = "0",
+                FromBlock = "02"
+            };
+            await ExampleJsInterop.RemoveLink(newLink);
+        }
+
+        protected async void RemoveBlock()
+        {
+            await ExampleJsInterop.RemoveBlock(Text2);
+        }          
+        protected async void RemovePaletteBlock()
+        {
+            await ExampleJsInterop.RemovePaletteBlock("0");
+        }
+        protected async void Save()
+        {
+            DiagramModel = ExampleJsInterop.SaveDiagramModel();
         }
         protected async void Load()
         {
@@ -144,7 +154,7 @@ namespace GoJSBlazor.Pages {
             var Palette = JsonConvert.DeserializeObject<List<BlockModel>>(a);
             var Links = JsonConvert.DeserializeObject<List<LinkModel>>(c);
 
-            await ExampleJsInterop.LoadDiagram(Blocks, Links, Palette);
+            await ExampleJsInterop.LoadDiagram(DiagramModel);
         }
         protected async override void OnAfterRender(bool firstRender)
         {
@@ -153,12 +163,11 @@ namespace GoJSBlazor.Pages {
                 //ExampleJsInterop = new ExampleJsInterop(JSRuntime);
                 // This calls the script in gojs-scripts.js
 
-                await ExampleJsInterop.InitGoJS();
-                AddNewBlocksToPalette();
+                //
                 //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
                 //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
 
-                ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleCustomEvent;
+                //ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleCustomEvent;
                 //ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
             }
         }
