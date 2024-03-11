@@ -1,0 +1,17 @@
+﻿@code {
+    [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
+}
+<div class="my-component">
+    <div id="myPaletteDiv" style="width: 100px; height: 400px; margin-right: 2px; background-color: #282c34;"></div>
+    <div id="myDiagramDiv" style="width:600px; height:500px; border:1px solid black"></div>
+</div>
+
+@code{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ExampleJsInterop.InitGoJS();
+        }
+    }
+}
