@@ -13,36 +13,32 @@ namespace GoJSBlazor.Pages {
         [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
-        public string Text2 { get; set; }
+        public string EventsFiered { get; set; }
+        public string ColorCode { get; set; } = "#F1F7E9";
+        public bool isBlockCreationDisabled { get; set; }
+        public string FromBlock { get; set; }
+        public string ToBlock { get; set; }        
+        public string FromPort { get; set; }
+        public string ToPort { get; set; }
+
+        
         public DiagramModel DiagramModel;
 
-        //protected async void Save(string jsonModel = null)
-        //{
+        public string SelectedCategory { get; set; }
+        public List<string> AwalibleNodes { get; set; } = new List<string>();
 
-        //    AddNewBlocksToPalette();
-        //}
-        //protected async void SelectBlock()
-        //{
-        //    await ExampleJsInterop.SelectBlockById(ExampleJsInterop.Diagram.Blocks.FirstOrDefault().Id);
-        //}
+        public string SelectedBlockId { get; set; }
+        public string newXcoordinate { get; set; }
+        public string newYcoordinate { get; set; }
+
         protected async void MoveBlock()
         {           
-            var coordinates = new Point { X = 50, Y = 50 };
-            await ExampleJsInterop.MoveBlock(coordinates, "0");
-        }
-        private void HandleCustomEvent(List<BlockModel> blocks)
-        {
-            NodeId = blocks.Count.ToString();
-            StateHasChanged();
-        }
-        private void HandleCustomEvent2(/*string args*/)
-        {
-            Text2 = "Redo".ToString();
-            StateHasChanged();
+            var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
+            await ExampleJsInterop.MoveBlock(coordinates, SelectedBlockId);
         }
         protected async void RemoveBlockPort()
         {
-            await ExampleJsInterop.RemovePortFromBlock("right2", "0");
+            await ExampleJsInterop.RemovePortFromBlock("right0", SelectedBlockId);
         }
         protected async void UpdateBlockPorts()
         {
@@ -61,8 +57,8 @@ namespace GoJSBlazor.Pages {
                 Description = "blue port left2",
                 PortType = PortType.Input
             };
-            await ExampleJsInterop.AddPortToBlock(port, "0");
-            await ExampleJsInterop.AddPortToBlock(port2, "0");
+            await ExampleJsInterop.AddPortToBlock(port, SelectedBlockId);
+            await ExampleJsInterop.AddPortToBlock(port2, SelectedBlockId);
 
 
         }
@@ -71,34 +67,32 @@ namespace GoJSBlazor.Pages {
             var newBlock = new Block
             {
                 Name = "Name",
-                Category = "Category",
-                Description = "New block Category2",
-                Color = "yello"                
+                Category = SelectedCategory,
+                Description = $"New block {SelectedCategory} "                
             };
             
             await ExampleJsInterop.AddBlock(newBlock);
         }
-        protected async void AddNewBlocksToPalette()
+        protected async void AddBlockToPalette()
         {
-
             var newBlock = new Block
             {
                 Name = "Red",
-                Category = "Category",
+                Category = "Red category",
                 Description = "Red block Category",
-                Color = "Red",
+                Color = ColorCode,
                 Id = "0",
             };
             var port1 = new Port
             {
-                Name = "le",
+                Name = "left",
                 Color = "black",
                 Description = "portDescr",
                 PortType = PortType.Input
             };             
             var port2 = new Port
             {
-                Name = "le",
+                Name = "right",
                 Color = "red",
                 Description = "portDescr2",
                 PortType = PortType.Output
@@ -107,17 +101,20 @@ namespace GoJSBlazor.Pages {
             {
                 port1, port2
             };
-            await ExampleJsInterop.AddPaletteBlock(newBlock, list);
+            if (await ExampleJsInterop.AddPaletteBlock(newBlock, list))
+                AwalibleNodes.Add(newBlock.Category);
 
+            StateHasChanged();
         }
+       
         protected async void AddLink()
         {
             var newLink = new Link
             {
-                FromPort = "right0",
-                ToPort = "left0",
-                ToBlock = "0",
-                FromBlock = "02"
+                FromPort = $"right{FromPort}",
+                ToPort = $"left{ToPort}",
+                ToBlock = ToBlock,
+                FromBlock = FromBlock
             };
             await ExampleJsInterop.AddLink(newLink);
         }
@@ -125,23 +122,23 @@ namespace GoJSBlazor.Pages {
         {
             var newLink = new Link
             {
-                FromPort = "right0",
-                ToPort = "left0",
-                ToBlock = "0",
-                FromBlock = "02"
+                FromPort = $"right{FromPort}",
+                ToPort = $"left{ToPort}",
+                ToBlock = ToBlock,
+                FromBlock = FromBlock
             };
             await ExampleJsInterop.RemoveLink(newLink);
         }
 
         protected async void RemoveBlock()
         {
-            await ExampleJsInterop.RemoveBlock(Text2);
+            await ExampleJsInterop.RemoveBlock(SelectedBlockId);
         }          
         protected async void RemovePaletteBlock()
         {
             await ExampleJsInterop.RemovePaletteBlock("0");
         }
-        protected async void Save()
+        protected void Save()
         {
             DiagramModel = ExampleJsInterop.SaveDiagramModel();
         }
@@ -156,19 +153,101 @@ namespace GoJSBlazor.Pages {
 
             await ExampleJsInterop.LoadDiagram(DiagramModel);
         }
-        protected async override void OnAfterRender(bool firstRender)
+
+        
+        private void HandleBlocksDeletedEvent(List<BlockModel> deletedBlocks)
+        {
+            EventsFiered += Environment.NewLine + deletedBlocks .Count+ " Blocks deleted";
+            StateHasChanged();
+        }
+        private void HandleBlocksAddedEvent(List<BlockModel> deletedBlocks)
+        {
+            EventsFiered += Environment.NewLine + deletedBlocks.Count + " Blocks added";
+            StateHasChanged();
+        }
+        private void HandleLinkEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Link added"; 
+            StateHasChanged();
+        }
+        private void HandleLinkDeletedEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Link deleted";
+            StateHasChanged();
+        }
+        private void HandleBlockPositionChangedEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Block position changed";
+            StateHasChanged();
+        }
+
+        private void HandleNodeMouseHoverEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Node mouse hover";
+            StateHasChanged();
+        }
+        private void HandleLinkMouseHoverEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Link mouse hover";
+            StateHasChanged();
+        }
+
+        private void HandleSelectBlockEvent(string args)
+        {
+            SelectedBlockId = args;
+            EventsFiered += Environment.NewLine + "selected block changed";
+            StateHasChanged();
+        }
+
+        private void HandleUndoEvent()
+        {
+            EventsFiered += Environment.NewLine + "Undo event";
+            StateHasChanged();
+        }
+        private void HandleRedoEvent()
+        {
+            EventsFiered += Environment.NewLine + "Redo event";
+            StateHasChanged();
+        }
+
+        private void HandleContextHelpEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Context menu help";
+            StateHasChanged();
+        }
+        private void HandleContextPropertiesEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Context menu properties";
+            StateHasChanged();
+        }
+        private void HandleContextOpenoEvent(string args)
+        {
+            EventsFiered += Environment.NewLine + "Context menu open";
+            StateHasChanged();
+        }
+        protected override void OnAfterRender(bool firstRender)
         {
             if (firstRender)
             {
-                //ExampleJsInterop = new ExampleJsInterop(JSRuntime);
-                // This calls the script in gojs-scripts.js
+                ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleSelectBlockEvent;
+                ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleBlocksAddedEvent;
+                ExampleJsInterop.AddedEventInterceptor.BlocksRemoveEvent += HandleBlocksDeletedEvent;
+                ExampleJsInterop.AddedEventInterceptor.LinkAddedEvent += HandleLinkEvent;
+                ExampleJsInterop.AddedEventInterceptor.LinkRemoveEvent += HandleLinkDeletedEvent;
 
-                //
-                //ExampleJsInterop.SelectionEventInterceptor.LinkSelectionChanged += HandleCustomEvent2;
-                //ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleCustomEvent;
+                
+                ExampleJsInterop.MouseHoverEventInterceptor.NodeMouseHover += HandleNodeMouseHoverEvent;
+                ExampleJsInterop.MouseHoverEventInterceptor.LinkMouseHover += HandleLinkMouseHoverEvent;
+                ExampleJsInterop.BlockPositionEventInterceptor.BlockPositionChanged += HandleBlockPositionChangedEvent;
+                ExampleJsInterop.UndoRedoEventInterceptor.Undo += HandleUndoEvent;
+                ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleRedoEvent;
 
-                //ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleCustomEvent;
-                //ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleCustomEvent2;
+                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextHelp += HandleContextHelpEvent;
+                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextProperties += HandleContextPropertiesEvent;
+                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextOpen += HandleContextOpenoEvent;
+
+
+
             }
         }
 
