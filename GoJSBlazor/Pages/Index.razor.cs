@@ -14,14 +14,15 @@ namespace GoJSBlazor.Pages {
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
         public string EventsFiered { get; set; }
-        public string ColorCode { get; set; } = "#F1F7E9";
+        public string ColorCode { get; set; } = "#FF0000";
         public bool isBlockCreationDisabled { get; set; }
         public string FromBlock { get; set; }
         public string ToBlock { get; set; }        
         public string FromPort { get; set; }
         public string ToPort { get; set; }
+        public string NewBlockCategory { set; get; }
 
-        
+
         public DiagramModel DiagramModel;
 
         public string SelectedCategory { get; set; }

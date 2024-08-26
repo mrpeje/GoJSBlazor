@@ -4,71 +4,93 @@
 
 }
 <h1>GoJS / Blazor Minimal Sample</h1>
-
-<div class="row">
-
+   
+<div class="my-component">
+    <div class="row">
         <div class="col-md-6">
-        <GoJsWrapper.GoJs></GoJsWrapper.GoJs>
-        </div>
-        <div class="col-md-6">
-            <div class="my-component">         
-            <ColorPicker @bind-Color="@ColorCode" />
-            <button class="btn btn-primary" @onclick="() => AddBlockToPalette()">Add Block</button>
-                <button class="btn btn-primary" @onclick="() => RemovePaletteBlock()">Remove Block</button>
-
-                <div class="row flex-container">
-                    <div class="col-md-12">
-                        <button class="btn btn-primary" @onclick="() => AddNewBlock()">AddNewBlock</button>
-                        <select @bind="SelectedCategory">
-                            @foreach (var option in AwalibleNodes)
-                            {
-                                <option value="@option">@option</option>
-                            }
-                        </select>           
-                    </div>
-                </div>
-                <div class="row flex-container">
-                    <div class="col-md-12">
-                        <input type="text" @bind="SelectedBlockId" style="width: 50px;" />
-                        <div class="">
-                            <button class="btn btn-primary" @onclick='() => RemoveBlock()'>Remove Selected Block</button>
-                            <button class="btn btn-primary" @onclick="() => UpdateBlockPorts()">Update Selected Block</button>
-                            <button class="btn btn-primary" @onclick="() => RemoveBlockPort()">RemoveBlockPort</button>
-                        </div>
-                        <button class="btn btn-primary" @onclick="() => MoveBlock()">Move Selected Block</button>
-                        <input type="text" @bind="newXcoordinate" style="width: 50px;" />
-                        <input type="text" @bind="newYcoordinate" style="width: 50px;" />
-                    </div>
-                </div>
-                <div class="row flex-container">
-                    <button class="btn btn-primary" @onclick="() => AddLink()">AddLink</button>
-                    <button class="btn btn-primary" @onclick="() => RemoveLink()">RemoveLink</button>
+            <div class="palette-controll flex-container border">
+                <h3>Palette controll</h3>
                 <div>
+                    <div class="flex-row">
+                        <label>Color for new block</label>
+                        <ColorPicker @bind-Color="@ColorCode" style="width: 35px; height:35px"/>
+                    </div>
+                    <div class="flex-row">
+                        <label asp-for="newBlockCategory">Category for new Block</label>
+                        <input type="text" name="newBlockCategory" @bind="NewBlockCategory" style="width: 150px;" />
+                    </div>
+                    <button class="btn btn-primary" @onclick="() => AddBlockToPalette()">Add Block to palette</button>
+                    <button class="btn btn-primary" @onclick="() => RemovePaletteBlock()">Remove Block</button>
+                </div>
+            </div>
+            <div class="flex-container border">
+                <button class="btn btn-primary" @onclick="() => AddNewBlock()">Add new block to diagramm</button>
+                <label>Avalible categories</label>
+                <select @bind="SelectedCategory">
+                    @foreach (var option in AwalibleNodes)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="diagram-controll col-md-6">                 
+            <div class="flex-container border">
+                <div class="border">
+                    <div class="flex-row">
+                        <label>Selected Block Id</label>
+                        <input type="text" @bind="SelectedBlockId" style="width: 50px;" />
+                    </div>
+                
+                    <button class="btn btn-primary" @onclick='() => RemoveBlock()'>Remove Selected Block</button>
+                    <button class="btn btn-primary" @onclick="() => UpdateBlockPorts()">Update Selected Block</button>
+                    <button class="btn btn-primary" @onclick="() => RemoveBlockPort()">RemoveBlockPort</button>
+                </div>
+                <button class="btn btn-primary" @onclick="() => MoveBlock()">Move Selected Block</button>
+                <div class="flex-row">
+                    <label>Y coordinate</label>
+                    <input type="text" @bind="newXcoordinate" style="width: 50px;" />
+                </div>
+                <div class="flex-row">
+                    <label>X coordinate</label>
+                    <input type="text" @bind="newYcoordinate" style="width: 50px;" />
+                </div>
+            </div>
+            <div class="flex-container border">
+                <h3>Link controll</h3>
+                <button class="btn btn-primary" @onclick="() => AddLink()">AddLink</button>
+                <button class="btn btn-primary" @onclick="() => RemoveLink()">RemoveLink</button>
+                <div class="flex-row">
                     <label asp-for="FromBlock">FromBlock</label>
                     <input type="text" name="FromBlock" @bind="FromBlock " style="width: 50px;" />
-                </div>
-                <div>
+
                     <label asp-for="ToBlock">ToBlock</label>
                     <input type="text" name="ToBlock" @bind="ToBlock" style="width: 50px;" />
                 </div>
-                <div>
+                <div class="flex-row">
                     <label asp-for="FromPort">FromPort</label>
                     <input type="text" name="FromPort" @bind="FromPort" style="width: 50px;" />
-                </div>
-                <div>
+
                     <label asp-for="ToPort">ToPort</label>
                     <input type="text" name="ToPort" @bind="ToPort" style="width: 50px;" />
                 </div>
-                </div>
-
-                <button class="btn btn-primary" @onclick="() => Save()">Save</button>
-                <button class="btn btn-primary" @onclick="() => Load()">Load</button>
-
-            <textarea @bind="EventsFiered" style="width:400px; height:400px;" />
-
-
             </div>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <GoJsWrapper.GoJs></GoJsWrapper.GoJs>
+        </div>
+        <div class="col-md-6 flex-container">
+            <h3>Intercepted JS events</h3>
+            <textarea @bind="EventsFiered" style="width:400px; height:400px;" />
+
+            <button class="btn btn-primary" @onclick="() => Save()">Save diagramm to file</button>
+            <button class="btn btn-primary" @onclick="() => Load()">Load diagramm from file</button>
+        </div>
+
+    </div>
 
 </div>
 
