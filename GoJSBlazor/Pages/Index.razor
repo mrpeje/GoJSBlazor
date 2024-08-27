@@ -17,14 +17,13 @@
                     </div>
                     <div class="flex-row">
                         <label asp-for="newBlockCategory">Category for new Block</label>
-                        <input type="text" name="newBlockCategory" @bind="NewBlockCategory" style="width: 150px;" />
+                        <input type="text" name="newBlockCategory" @oninput="(e)=> NewBlockCategory = e.Value.ToString()" value="" style="width: 150px;" />
                     </div>
-                    <button class="btn btn-primary" @onclick="() => AddBlockToPalette()">Add Block to palette</button>
+                    <button class="btn btn-primary" disabled=@(string.IsNullOrEmpty(NewBlockCategory)) @onclick="() => AddBlockToPalette()">Add Block to palette</button>
                     <button class="btn btn-primary" @onclick="() => RemovePaletteBlock()">Remove Block</button>
                 </div>
             </div>
-            <div class="flex-container border">
-                <button class="btn btn-primary" @onclick="() => AddNewBlock()">Add new block to diagramm</button>
+            <div class="flex-container border">                
                 <label>Avalible categories</label>
                 <select @bind="SelectedCategory">
                     @foreach (var option in AwalibleNodes)
@@ -32,6 +31,7 @@
                         <option value="@option">@option</option>
                     }
                 </select>
+                <button class="btn btn-primary" @onclick="() => AddNewBlock()">Add new block to diagramm</button>
             </div>
         </div>
         <div class="diagram-controll col-md-6">                 

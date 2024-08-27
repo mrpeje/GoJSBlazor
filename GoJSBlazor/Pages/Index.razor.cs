@@ -20,8 +20,7 @@ namespace GoJSBlazor.Pages {
         public string ToBlock { get; set; }        
         public string FromPort { get; set; }
         public string ToPort { get; set; }
-        public string NewBlockCategory { set; get; }
-
+        public string NewBlockCategory { get; set; }
 
         public DiagramModel DiagramModel;
 
@@ -78,9 +77,9 @@ namespace GoJSBlazor.Pages {
         {
             var newBlock = new Block
             {
-                Name = "Red",
-                Category = "Red category",
-                Description = "Red block Category",
+                Name = NewBlockCategory,
+                Category = NewBlockCategory,
+                Description = "Block",
                 Color = ColorCode,
                 Id = "0",
             };
