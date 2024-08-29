@@ -34,12 +34,11 @@ namespace GoJsWrapper
                     Model.Links = parsedModel.Links;
                 }
             }
-            catch (Exception ex)
+            catch (JsonSerializationException ex)
             {
 
             }
         }
-
 
         public BlockModel GetBlockById(string id)
         {
@@ -53,6 +52,7 @@ namespace GoJsWrapper
                 return false;
            
             await RemoveBlockFromJsModel(block);
+            
             return true;
         }
         public async Task RemoveBlockFromJsModel(BlockModel block)
@@ -113,10 +113,10 @@ namespace GoJsWrapper
 
         public LinkModel GetLinkByParams(string fromBlock, string toBlock, string fromPort, string toPort)
         {
-            return Model.Links.FirstOrDefault(e => e.To == toBlock &&
-                                            e.From == fromBlock &&
-                                            e.toPort == toPort &&
-                                            e.fromPort == fromPort);
+            return Model.Links.FirstOrDefault(e => e.ToBlock == toBlock &&
+                                            e.FromBlock == fromBlock &&
+                                            e.ToPort == toPort &&
+                                            e.FromPort == fromPort);
 
         }
         public async Task AddLinkToJsModel(LinkModel newlink)

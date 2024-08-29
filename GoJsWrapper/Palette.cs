@@ -2,7 +2,6 @@
 using GoJsWrapper.Models;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace GoJsWrapper
 {
@@ -34,7 +33,7 @@ namespace GoJsWrapper
                     Model = parsedModel.Model;
                 }
             }
-            catch (Exception ex)
+            catch (JsonSerializationException ex)
             {
 
             }

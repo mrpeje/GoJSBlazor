@@ -12,13 +12,13 @@ namespace GoJsWrapper.Models
         [JsonProperty(PropertyName = "key")]
         public string Id { get; set; } = "1";
         [JsonProperty(PropertyName = "from")]
-        public string From { get; set; }
+        public string FromBlock { get; set; }
         [JsonProperty(PropertyName = "to")]
-        public string To { get; set; }
+        public string ToBlock{ get; set; }
         [JsonProperty(PropertyName = "fromPort")]
-        public string fromPort { get; set; }
+        public string FromPort { get; set; }
         [JsonProperty(PropertyName = "toPort")]
-        public string toPort { get; set; }
+        public string ToPort { get; set; }
         [JsonProperty(PropertyName = "points")]
         public float[] Points {  get; set; }
     }
