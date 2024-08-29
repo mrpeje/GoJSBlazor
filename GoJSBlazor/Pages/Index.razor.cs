@@ -30,7 +30,10 @@ namespace GoJSBlazor.Pages {
         public string SelectedBlockId { get; set; }
         public string newXcoordinate { get; set; }
         public string newYcoordinate { get; set; }
-
+        public void handleChange(ChangeEventArgs args)
+        {
+            SelectedBlockId = args.Value.ToString();
+        }
         protected async void MoveBlock()
         {           
             var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
@@ -42,7 +45,6 @@ namespace GoJSBlazor.Pages {
         }
         protected async void UpdateBlockPorts()
         {
-
             var port = new Port
             {
                 Name = "Port1",
@@ -59,8 +61,6 @@ namespace GoJSBlazor.Pages {
             };
             await ExampleJsInterop.AddPortToBlock(port, SelectedBlockId);
             await ExampleJsInterop.AddPortToBlock(port2, SelectedBlockId);
-
-
         }
         protected async void AddNewBlock()
         {
@@ -136,7 +136,13 @@ namespace GoJSBlazor.Pages {
         }          
         protected async void RemovePaletteBlock()
         {
-            await ExampleJsInterop.RemovePaletteBlock("0");
+            Block block = ExampleJsInterop.GetPaletteBlockById(SelectedBlockId);
+            if (block != null)
+            {
+                AwalibleNodes.Remove(block.Category);
+                await ExampleJsInterop.RemovePaletteBlock(SelectedBlockId);
+                StateHasChanged();
+            }
         }
         protected void Save()
         {

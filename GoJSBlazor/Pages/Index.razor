@@ -28,7 +28,7 @@
                 <select @bind="SelectedCategory">
                     @foreach (var option in AwalibleNodes)
                     {
-                        <option value="@option">@option</option>
+                        <option @key=option value="@option">@option</option>
                     }
                 </select>
                 <button class="btn btn-primary" @onclick="() => AddNewBlock()">Add new block to diagramm</button>
