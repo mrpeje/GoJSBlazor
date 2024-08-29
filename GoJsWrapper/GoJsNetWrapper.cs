@@ -1,4 +1,4 @@
-using GoJsWrapper.EventInterceptors;
+﻿using GoJsWrapper.EventInterceptors;
 using GoJsWrapper.Interfaces;
 using GoJsWrapper.Models;
 using GoJsWrapper.Models.DTO;
@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
-
 
 
 namespace GoJsWrapper
@@ -51,6 +50,7 @@ namespace GoJsWrapper
             UndoRedoEventInterceptor = new UndoRedoEventInterceptor();
             AddedEventInterceptor = new AddRemoveEventInterceptor();
             BlockContextMenuEventsInterceptor = new BlockContextMenuEventsInterceptor();
+
             ModelInterceptor.DiagramModelChanged += Diagram.UpdateDiagramModel;
             ModelInterceptor.PaletteModelChanged += Palette.UpdatePaletteModel;
         }               
@@ -60,10 +60,12 @@ namespace GoJsWrapper
             ReferenceBlockContextMenuEventsInterceptor = DotNetObjectReference.Create(BlockContextMenuEventsInterceptor);
             ReferenceMouseHoverEventInterceptor = DotNetObjectReference.Create(MouseHoverEventInterceptor);
             ReferenceUndoRedoEventInterceptor = DotNetObjectReference.Create(UndoRedoEventInterceptor);
-            await _jsRuntime.InvokeAsync<string>("initDiagram", 
-                                                ReferenceMouseHoverEventInterceptor, 
-                                                ReferenceUndoRedoEventInterceptor,
-                                                ReferenceBlockContextMenuEventsInterceptor);
+            await _jsRuntime.InvokeAsync<string>(
+                "initDiagram", 
+                ReferenceMouseHoverEventInterceptor, 
+                ReferenceUndoRedoEventInterceptor,
+                ReferenceBlockContextMenuEventsInterceptor);
+
             SetupModelChangedEvent();
             SetupSelectionChangedEvent();
             SetupBlockPositionChangedEvent(); 
@@ -158,10 +160,10 @@ namespace GoJsWrapper
             {
                 var link = new LinkModel
                 {
-                    fromPort = newlink.FromPort,
-                    toPort = newlink.ToPort,
-                    From = newlink.FromBlock,
-                    To = newlink.ToBlock
+                    FromPort = newlink.FromPort,
+                    ToPort = newlink.ToPort,
+                    FromBlock = newlink.FromBlock,
+                    ToBlock = newlink.ToBlock
                 };
                 await Diagram.AddLinkToJsModel(link);
                 return true;
@@ -249,7 +251,24 @@ namespace GoJsWrapper
 
             DiagramLoaded?.Invoke();
         }
+        public Block GetPaletteBlockById(string blockId)
+        {
+            if (string.IsNullOrEmpty(blockId))
+                return null;
 
+            var blockModel = Palette.FindBlock(blockId);
+            if (blockModel == null)
+                return null;
+            Block block = new Block
+            {
+                Category = blockModel.Category,
+                Description = blockModel.Description,
+                Color = blockModel.Color,
+                Name = blockModel.Name,
+                Id = blockModel.Id
+            };
+            return block;
+        }
         public void SetupModelChangedEvent()
         {
             ReferenceModelInterceptor = DotNetObjectReference.Create(ModelInterceptor);
