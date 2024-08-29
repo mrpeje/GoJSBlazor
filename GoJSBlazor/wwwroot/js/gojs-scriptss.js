@@ -449,16 +449,23 @@ function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
         myDiagram.model = go.Model.fromJson(modelJson);
     }
 
-    function subscribeSelectionChangedEventListener(dotNetObjectRef) {
-        myDiagram.addDiagramListener('ChangedSelection', (event) => {
-            var obj = event.diagram.selection.first();
-            if (obj instanceof go.Node) {
-                dotNetObjectRef.invokeMethodAsync('OnNodeSelectionChangedEvent', obj.key.toString());
-            }
-            if (obj instanceof go.Link) {
-                dotNetObjectRef.invokeMethodAsync('OnLinkSelectionChangedEvent', obj.key.toString());
-            }
-        });
+function subscribeSelectionChangedEventListener(dotNetObjectRef) {
+    myPalette.addDiagramListener('ChangedSelection', (event) => {
+        var obj = event.diagram.selection.first();
+        if (obj instanceof go.Node) {
+            dotNetObjectRef.invokeMethodAsync('OnNodeSelectionChangedEvent', obj.key.toString());
+        }
+    });
+    myDiagram.addDiagramListener('ChangedSelection', (event) => {
+        var obj = event.diagram.selection.first();
+        if (obj instanceof go.Node) {
+            dotNetObjectRef.invokeMethodAsync('OnNodeSelectionChangedEvent', obj.key.toString());
+        }
+        if (obj instanceof go.Link) {
+            dotNetObjectRef.invokeMethodAsync('OnLinkSelectionChangedEvent', obj.key.toString());
+        }
+    });
+
     }
     function subscribeModelChangedEvent(netRefrenece) {
         myDiagram.addModelChangedListener(evt => {
