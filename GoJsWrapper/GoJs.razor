@@ -1,9 +1,13 @@
 ﻿@code {
     [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
 }
-<div class="my-component">
-    <div id="myPaletteDiv" style="width: 100px; height: 400px; margin-right: 2px; background-color: #282c34;"></div>
-    <div id="myDiagramDiv" style="width:600px; height:500px; border:1px solid black"></div>
+<div class="row">
+    <div class="col-md-1">
+        <div id="myPaletteDiv" style="width: 80px; height: 500px; border:1px solid black "></div>
+    </div>
+    <div class="col-md-5">
+        <div id="myDiagramDiv" style="width: 600px; height:500px; border:1px solid black"></div>
+    </div>
 </div>
 
 @code{

@@ -30,10 +30,6 @@ namespace GoJSBlazor.Pages {
         public string SelectedBlockId { get; set; }
         public string newXcoordinate { get; set; }
         public string newYcoordinate { get; set; }
-        public void handleChange(ChangeEventArgs args)
-        {
-            SelectedBlockId = args.Value.ToString();
-        }
         protected async void MoveBlock()
         {           
             var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
