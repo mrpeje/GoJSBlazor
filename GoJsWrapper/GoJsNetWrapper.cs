@@ -149,7 +149,7 @@ namespace GoJsWrapper
             if(block == null) 
                 return false;
 
-            await Diagram.RemoveBlock(block.Id);
+            await Diagram.RemoveBlockFromJsModel(block.Id);
             return true;
         }
         public async Task<bool> AddLink(Link newlink)

@@ -45,21 +45,13 @@ namespace GoJsWrapper
             return Model.Blocks.FirstOrDefault(e => e.Id == id);
         }
 
-        public async Task<bool> RemoveBlock(string blockId)
+        public async Task RemoveBlockFromJsModel(string blockId)
         {
-            var block = GetBlockById(blockId);
-            if (block == null)
-                return false;
-           
-            await RemoveBlockFromJsModel(block);
-            
-            return true;
-        }
-        public async Task RemoveBlockFromJsModel(BlockModel block)
-        {
-            //Model.Blocks.Remove(block);
-            var blockJson = JsonConvert.SerializeObject(block);
-            await _jsRuntime.InvokeAsync<string>("removeBlock", blockJson);
+            Int32.TryParse(blockId, out var intBlockId);
+            if(intBlockId < 0)
+                await _jsRuntime.InvokeAsync<string>("removeBlock", intBlockId);
+            else
+                await _jsRuntime.InvokeAsync<string>("removeBlock", blockId);
         }
         public async Task<bool> UpdateBlock(Block blockUpdate, string blockId)
         {
@@ -156,7 +148,7 @@ namespace GoJsWrapper
         {
             foreach(var block in Model.Blocks.ToList())
             {
-                await RemoveBlockFromJsModel(block);
+                await RemoveBlockFromJsModel(block.Id);
             }
             foreach(var link in Model.Links.ToList())
             {

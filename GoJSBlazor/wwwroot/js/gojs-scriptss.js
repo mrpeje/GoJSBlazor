@@ -524,12 +524,11 @@ function subscribeAddedEvent(netRefrenece) {
     });
 }
 
-    function removeBlock(block) {
-        var jsonBlock = JSON.parse(block);
-        myDiagram.startTransaction("Delete new block");
-        var node = myDiagram.model.findNodeDataForKey(jsonBlock.key);
+    function removeBlock(blockId) {
+        myDiagram.startTransaction("Delete block");
+        var node = myDiagram.model.findNodeDataForKey(blockId);
         myDiagram.model.removeNodeData(node);
-        myDiagram.commitTransaction("Deletenewblock");
+        myDiagram.commitTransaction("Delete block");
     }
     function addNewBlock(newBlock) {
         var jsonNewBlock = JSON.parse(newBlock);

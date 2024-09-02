@@ -64,7 +64,8 @@ namespace GoJSBlazor.Pages {
             {
                 Name = "Name",
                 Category = SelectedCategory,
-                Description = $"New block {SelectedCategory} "                
+                Description = $"New block {SelectedCategory} ",
+                Id = "0"
             };
             
             await ExampleJsInterop.AddBlock(newBlock);
