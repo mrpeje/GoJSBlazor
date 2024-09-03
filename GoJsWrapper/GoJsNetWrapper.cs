@@ -139,7 +139,7 @@ namespace GoJsWrapper
                 return false;
 
             block.Coordinates = newCoordinates.X + " " + newCoordinates.Y;
-            await Diagram.MoveBlockJsModel(blockId, block.Coordinates);
+            await Diagram.MoveBlockJsModel(block.Id, block.Coordinates);
             return true;
         }
 
