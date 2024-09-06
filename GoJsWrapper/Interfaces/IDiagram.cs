@@ -12,14 +12,14 @@ namespace GoJsWrapper.Interfaces
     public interface IDiagram
     {
         public Task<bool> AddBlock(Block block);
-        public Task<bool> RemoveBlock(string blockId);
-        public Task<bool> UpdateBlock(Block blockUpdate, string blockId);
-        public Task<bool> MoveBlock(Point newCoordinates, string blockId);
+        public Task<bool> RemoveBlock(int blockId);
+        public Task<bool> UpdateBlock(Block blockUpdate, int blockId);
+        public Task<bool> MoveBlock(Point newCoordinates, int blockId);
 
         public Task<bool> AddLink(Link link);
         public Task<bool> RemoveLink(Link link);
 
-        Task<bool> AddPortToBlock(Port newPort, string blockId);
-        Task<bool> RemovePortFromBlock(string portId, string blockId);
+        Task<bool> AddPortToBlock(Port newPort, int blockId);
+        Task<bool> RemovePortFromBlock(string portId, int blockId);
     }
 }

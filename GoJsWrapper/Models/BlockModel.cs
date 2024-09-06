@@ -16,7 +16,7 @@ namespace GoJsWrapper.Models
         public string Category { get; set; }
 
         [JsonProperty(PropertyName = "key")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty(PropertyName = "leftArray")]
         public List<PortModel> InputPorts { get; set; }

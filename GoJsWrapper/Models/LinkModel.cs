@@ -9,17 +9,18 @@ namespace GoJsWrapper.Models
 {
     public class LinkModel
     {
-        [JsonProperty(PropertyName = "key")]
-        public string Id { get; set; } = "1";
+
         [JsonProperty(PropertyName = "from")]
-        public string FromBlock { get; set; }
+        public int FromBlock { get; set; }
         [JsonProperty(PropertyName = "to")]
-        public string ToBlock{ get; set; }
+        public int ToBlock { get; set; }
         [JsonProperty(PropertyName = "fromPort")]
         public string FromPort { get; set; }
         [JsonProperty(PropertyName = "toPort")]
         public string ToPort { get; set; }
-        [JsonProperty(PropertyName = "points")]
-        public float[] Points {  get; set; }
+        [JsonProperty(PropertyName = "key")]
+        public int Id { get; set; } = -1;
+        //[JsonProperty(PropertyName = "points")]
+        //public double[] Points {  get; set; }
     }
 }

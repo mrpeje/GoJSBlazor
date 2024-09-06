@@ -11,7 +11,7 @@ namespace GoJsWrapper.Interfaces
     public interface IPalette
     {
         public Task<bool> AddPaletteBlock(Block block, List<Port> ports);
-        public Task<bool> RemovePaletteBlock(string id);
+        public Task<bool> RemovePaletteBlock(int id);
 
     }
 }

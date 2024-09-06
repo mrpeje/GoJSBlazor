@@ -81,7 +81,7 @@ namespace GoJsWrapper
             await Diagram.AddBlockToJsModel(block);
             return true;
         }
-        public async Task<bool> AddPortToBlock(Port newPort, string blockId)
+        public async Task<bool> AddPortToBlock(Port newPort, int blockId)
         {
             string portId = "";
             var block = Diagram.GetBlockById(blockId);
@@ -110,7 +110,7 @@ namespace GoJsWrapper
             await Diagram.UpdateBlockJsModel(block);
             return true;            
         }
-        public async Task<bool> RemovePortFromBlock(string portId, string blockId)
+        public async Task<bool> RemovePortFromBlock(string portId, int blockId)
         {
             var blockWithPort = Diagram.FindBlockWithPort(portId, blockId);
             if (blockWithPort == null)
@@ -119,7 +119,7 @@ namespace GoJsWrapper
             return true;
         }
 
-        public async Task<bool> UpdateBlock(Block blockUpdate, string blockId)
+        public async Task<bool> UpdateBlock(Block blockUpdate, int blockId)
         {
             var block = Diagram.GetBlockById(blockId);
             if(block == null)   
@@ -132,7 +132,7 @@ namespace GoJsWrapper
             return true;
 
         }
-        public async Task<bool> MoveBlock(Point newCoordinates, string blockId)
+        public async Task<bool> MoveBlock(Point newCoordinates, int blockId)
         {
             var block = Diagram.GetBlockById(blockId);
             if (block == null)
@@ -143,7 +143,7 @@ namespace GoJsWrapper
             return true;
         }
 
-        public async Task<bool> RemoveBlock(string blockId)
+        public async Task<bool> RemoveBlock(int blockId)
         {
             var block = Diagram.GetBlockById(blockId);
             if(block == null) 
@@ -179,7 +179,7 @@ namespace GoJsWrapper
             await Diagram.RemoveLinkFromJsModel(findLink);
             return true;
         }
-        public async Task<bool> RemovePaletteBlock(string id)
+        public async Task<bool> RemovePaletteBlock(int id)
         {
             var block = Palette.FindBlock(id);
             if( block == null) 
@@ -251,9 +251,9 @@ namespace GoJsWrapper
 
             DiagramLoaded?.Invoke();
         }
-        public Block GetPaletteBlockById(string blockId)
+        public Block GetPaletteBlockById(int blockId)
         {
-            if (string.IsNullOrEmpty(blockId))
+            if (blockId == null)
                 return null;
 
             var blockModel = Palette.FindBlock(blockId);

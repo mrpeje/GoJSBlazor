@@ -10,6 +10,7 @@ namespace GoJsWrapper.EventInterceptors
     public class SelectionChangedEventInterceptor
     {
         public delegate void SelectionChangedHandler(string id);
+
         public event SelectionChangedHandler LinkSelectionChanged;
         public event SelectionChangedHandler NodeSelectionChanged;
         [JSInvokable]

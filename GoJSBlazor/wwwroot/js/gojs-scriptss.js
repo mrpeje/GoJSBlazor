@@ -211,26 +211,37 @@ function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
         myDiagram.nodeTemplate = createNode();  // end Node
    
         // an orthogonal link template, reshapable and relinkable
-        myDiagram.linkTemplate =
-            $(CustomLink,  // defined below
-                {
-                    routing: go.Link.AvoidsNodes,
-                    corner: 4,
-                    curve: go.Link.JumpGap,
-                    reshapable: true,
-                    resegmentable: true,
-                    relinkableFrom: true,
-                    relinkableTo: true,
-                    contextMenu: linkMenu
-                },
-                {
-                    mouseHover: (e, obj) => {
-                        netReference.invokeMethodAsync('OnLinkMouseHoverEvent', obj.key.toString());
-                    }
-                },
-                new go.Binding("points").makeTwoWay(),
-                $(go.Shape, { stroke: "#2F4F4F", strokeWidth: 2 })
-            );
+        //myDiagram.linkTemplate =
+        //    $(CustomLink,  // defined below
+        //        {
+        //            routing: go.Link.AvoidsNodes,
+        //            corner: 4,
+        //            curve: go.Link.JumpGap,
+        //            reshapable: true,
+        //            resegmentable: true,
+        //            relinkableFrom: true,
+        //            relinkableTo: true,
+        //            contextMenu: linkMenu
+        //        },
+        //        {
+        //            mouseHover: (e, obj) => {
+        //                netReference.invokeMethodAsync('OnLinkMouseHoverEvent', obj.key.toString());
+        //            }
+        //        },
+        //        new go.Binding("points").makeTwoWay(),
+        //        $(go.Shape, { stroke: "#2F4F4F", strokeWidth: 2 })
+        //    );
+        myDiagram.linkTemplate = new go.Link({
+            routing: go.Routing.AvoidsNodes,
+            corner: 4,
+            curve: go.Curve.JumpGap,
+            reshapable: true,
+            resegmentable: true,
+            relinkableFrom: true,
+            relinkableTo: true
+        })
+            .bindTwoWay('points')
+            .add(new go.Shape({ stroke: '#2F4F4F', strokeWidth: 1.5 }));
 
         myDiagram.contextMenu =
             $("ContextMenu",
@@ -548,9 +559,9 @@ function subscribeAddedEvent(netRefrenece) {
         myPalette.model.removeNodeData(node);
         myPalette.commitTransaction("Delete new block");
     }
-    function updateBlock(block) {
+    function updateBlock(block, blockId) {
         var jsonBlock = JSON.parse(block);
-        var node = myDiagram.model.findNodeDataForKey(jsonBlock.key);
+        var node = myDiagram.model.findNodeDataForKey(blockId);
         myDiagram.startTransaction("update block");
         myDiagram.model.setDataProperty(node, "color", jsonBlock.color);
         myDiagram.model.setDataProperty(node, "name", jsonBlock.name);

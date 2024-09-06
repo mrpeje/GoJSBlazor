@@ -16,8 +16,8 @@ namespace GoJSBlazor.Pages {
         public string EventsFiered { get; set; }
         public string ColorCode { get; set; } = "#FF0000";
         public bool isBlockCreationDisabled { get; set; }
-        public string FromBlock { get; set; }
-        public string ToBlock { get; set; }        
+        public int FromBlock { get; set; }
+        public int ToBlock { get; set; }        
         public string FromPort { get; set; }
         public string ToPort { get; set; }
         public string NewBlockCategory { get; set; }
@@ -27,13 +27,16 @@ namespace GoJSBlazor.Pages {
         public string SelectedCategory { get; set; }
         public List<string> AwalibleNodes { get; set; } = new List<string>();
 
-        public string SelectedBlockId { get; set; }
+        public int SelectedBlockId { get; set; }
         public string newXcoordinate { get; set; }
         public string newYcoordinate { get; set; }
         protected async void MoveBlock()
-        {           
-            var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
-            await ExampleJsInterop.MoveBlock(coordinates, SelectedBlockId);
+        {
+            if (newXcoordinate != null && newYcoordinate != null)
+            {
+                var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
+                await ExampleJsInterop.MoveBlock(coordinates, SelectedBlockId);
+            }
         }
         protected async void RemoveBlockPort()
         {
@@ -65,7 +68,7 @@ namespace GoJSBlazor.Pages {
                 Name = "Name",
                 Category = SelectedCategory,
                 Description = $"New block {SelectedCategory} ",
-                Id = "0"
+                Id = 0
             };
             
             await ExampleJsInterop.AddBlock(newBlock);
@@ -78,7 +81,7 @@ namespace GoJSBlazor.Pages {
                 Category = NewBlockCategory,
                 Description = "Block",
                 Color = ColorCode,
-                Id = "0",
+                Id = 0,
             };
             var port1 = new Port
             {
@@ -197,9 +200,13 @@ namespace GoJSBlazor.Pages {
 
         private void HandleSelectBlockEvent(string args)
         {
-            SelectedBlockId = args;
-            EventsFiered += Environment.NewLine + "selected block changed";
-            StateHasChanged();
+            Int32.TryParse(args, out var id);
+            if (id != null)
+            {
+                SelectedBlockId = id;
+                EventsFiered += Environment.NewLine + "selected block changed";
+                StateHasChanged();
+            }
         }
 
         private void HandleUndoEvent()

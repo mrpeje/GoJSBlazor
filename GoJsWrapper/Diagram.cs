@@ -40,20 +40,20 @@ namespace GoJsWrapper
             }
         }
 
-        public BlockModel GetBlockById(string id)
+        public BlockModel GetBlockById(int id)
         {
             return Model.Blocks.FirstOrDefault(e => e.Id == id);
         }
 
-        public async Task RemoveBlockFromJsModel(string blockId)
+        public async Task RemoveBlockFromJsModel(int blockId)
         {
-            Int32.TryParse(blockId, out var intBlockId);
-            if(intBlockId < 0)
-                await _jsRuntime.InvokeAsync<string>("removeBlock", intBlockId);
-            else
+            //Int32.TryParse(blockId, out var intBlockId);
+            //if(intBlockId < 0)
+            //    await _jsRuntime.InvokeAsync<string>("removeBlock", intBlockId);
+            //else
                 await _jsRuntime.InvokeAsync<string>("removeBlock", blockId);
         }
-        public async Task<bool> UpdateBlock(Block blockUpdate, string blockId)
+        public async Task<bool> UpdateBlock(Block blockUpdate, int blockId)
         {
             var block = GetBlockById(blockId);
             if (block == null)
@@ -69,12 +69,12 @@ namespace GoJsWrapper
         public async Task UpdateBlockJsModel(BlockModel block)
         {
             var blockToUpdateJson = JsonConvert.SerializeObject(block);
-            Int32.TryParse(block.Id, out var intBlockId);
-            if (intBlockId < 0)
-            { 
-                await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, intBlockId); 
-            }
-            else
+            //Int32.TryParse(block.Id, out var intBlockId);
+            //if (intBlockId < 0)
+            //{ 
+            //    await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, intBlockId); 
+            //}
+            //else
                 await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, block.Id);
 
         }
@@ -104,20 +104,20 @@ namespace GoJsWrapper
             await UpdateBlockJsModel(updatedBlock);
         }
 
-        public async Task MoveBlockJsModel(string blockId, string newCoordinates)
+        public async Task MoveBlockJsModel(int blockId, string newCoordinates)
         {
-            Int32.TryParse(blockId, out var intBlockId);
-            if (intBlockId < 0)
-            {
-                await _jsRuntime.InvokeAsync<string>("updateBlockPosition", intBlockId, newCoordinates);
-            }
-            else
-            {
+            //Int32.TryParse(blockId, out var intBlockId);
+            //if (intBlockId < 0)
+            //{
+            //    await _jsRuntime.InvokeAsync<string>("updateBlockPosition", intBlockId, newCoordinates);
+            //}
+            //else
+            //{
                 await _jsRuntime.InvokeAsync<string>("updateBlockPosition", blockId, newCoordinates);
-            }
+            //}
         }
 
-        public LinkModel GetLinkByParams(string fromBlock, string toBlock, string fromPort, string toPort)
+        public LinkModel GetLinkByParams(int fromBlock, int toBlock, string fromPort, string toPort)
         {
             return Model.Links.FirstOrDefault(e => e.ToBlock == toBlock &&
                                             e.FromBlock == fromBlock &&
@@ -146,7 +146,7 @@ namespace GoJsWrapper
             var validatedBlockJson = JsonConvert.SerializeObject(block);
             await _jsRuntime.InvokeAsync<string>("addNewBlock", validatedBlockJson);
         }
-        public BlockModel FindBlockWithPort(string portId, string blockId)
+        public BlockModel FindBlockWithPort(string portId, int blockId)
         {
             return Model.Blocks.FirstOrDefault(e => e.Id == blockId &&
                     (e.InputPorts.Any(e => e.Id == portId) || e.OutputPorts.Any(e => e.Id == portId)));

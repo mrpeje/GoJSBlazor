@@ -15,7 +15,7 @@ namespace GoJsWrapper
             _jsRuntime = jsRuntime;
             Model = new List<BlockModel>();
         }
-        internal BlockModel FindBlock(string id)
+        internal BlockModel FindBlock(int id)
         {
             return Model.FirstOrDefault(e => e.Id == id);
         }
@@ -57,7 +57,7 @@ namespace GoJsWrapper
             return false;
         }
 
-        internal async Task RemoveBlockFromJsModel(string blockId)
+        internal async Task RemoveBlockFromJsModel(int blockId)
         {
             await _jsRuntime.InvokeAsync<string>("removePaletteBlock", blockId);
         }
