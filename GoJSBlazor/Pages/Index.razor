@@ -58,8 +58,10 @@
             </div>
             <div class="flex-container border">
                 <h3>Link controll</h3>
-                <button class="btn btn-primary" @onclick="() => AddLink()">AddLink</button>
-                <button class="btn btn-primary" @onclick="() => RemoveLink()">RemoveLink</button>
+                <div class="flex-row">
+                    <button class="btn btn-primary" @onclick="() => AddLink()">AddLink</button>
+                    <button class="btn btn-primary" @onclick="() => RemoveLink()">RemoveLink</button>
+                </div>
                 <div class="flex-row">
                     <label asp-for="FromBlock">FromBlock</label>
                     <input type="text" name="FromBlock" @bind="FromBlock " style="width: 50px;" />
@@ -84,10 +86,12 @@
         </div>
         <div class="col-md-6 flex-container">
             <h3>Intercepted JS events</h3>
-            <textarea @bind="EventsFiered" style="width:400px; height:400px;" />
+            <textarea @bind="TriggeredEvents" style="width:400px; height:400px;" />
+            <div class="flex-row">
+                <button class="btn btn-primary" @onclick="() => Save()">Save diagramm to file</button>
+                <button class="btn btn-primary" @onclick="() => Load()">Load diagramm from file</button>
+            </div>
 
-            <button class="btn btn-primary" @onclick="() => Save()">Save diagramm to file</button>
-            <button class="btn btn-primary" @onclick="() => Load()">Load diagramm from file</button>
         </div>
 
     </div>

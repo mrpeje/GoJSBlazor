@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Routing;
 using Newtonsoft.Json;
 using GoJsWrapper.Models.DTO;
 using System.Drawing;
+using System.Text;
 
 namespace GoJSBlazor.Pages {
     public partial class Index : ComponentBase
@@ -13,7 +14,7 @@ namespace GoJSBlazor.Pages {
         [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
-        public string EventsFiered { get; set; }
+        public string TriggeredEvents { get; set; }
         public string ColorCode { get; set; } = "#FF0000";
         public bool isBlockCreationDisabled { get; set; }
         public int FromBlock { get; set; }
@@ -22,7 +23,7 @@ namespace GoJSBlazor.Pages {
         public string ToPort { get; set; }
         public string NewBlockCategory { get; set; }
 
-        public DiagramModel DiagramModel;
+        public string JsDiagramModel;
 
         public string SelectedCategory { get; set; }
         public List<string> AwalibleNodes { get; set; } = new List<string>();
@@ -144,57 +145,62 @@ namespace GoJSBlazor.Pages {
                 StateHasChanged();
             }
         }
-        protected void Save()
+        protected async Task Save()
         {
-            DiagramModel = ExampleJsInterop.SaveDiagramModel();
+            JsDiagramModel = ExampleJsInterop.GetJsDiagramModel();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(JsDiagramModel);
+            await FileUtil.SaveAs(JSRuntime, "Diagram.txt", bytes);
+           
         }
         protected async void Load()
         {
-            var a = @"[{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":null,""color"":""red"",""description"":""Category1""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""0 70"",""color"":""green"",""description"":""Category2""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""0 140"",""color"":""yellow"",""description"":""Category3""}]";
-            var b = @"[{""name"":""Unit One"",""category"":""Cat1"",""key"":""1"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":""asdasd"",""portColor"":""#fae3d7""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""#eaeef8""},{""portId"":""right1"",""name"":null,""description"":null,""portColor"":""#fadfe5""}],""loc"":""101 204"",""color"":""#66d6d1"",""description"":""asd""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""-100 300.40625"",""color"":""yellow"",""description"":""Category3""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""262 302.40625"",""color"":""green"",""description"":""Category2""},{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":""86 104.40625"",""color"":""red"",""description"":""Category1""}]";
-            var c = @"[]";
-            var Blocks = JsonConvert.DeserializeObject<List<BlockModel>>(b);
-            var Palette = JsonConvert.DeserializeObject<List<BlockModel>>(a);
-            var Links = JsonConvert.DeserializeObject<List<LinkModel>>(c);
+            //var a = @"[{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":null,""color"":""red"",""description"":""Category1""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""0 70"",""color"":""green"",""description"":""Category2""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""0 140"",""color"":""yellow"",""description"":""Category3""}]";
+            //var b = @"[{""name"":""Unit One"",""category"":""Cat1"",""key"":""1"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":""asdasd"",""portColor"":""#fae3d7""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""#eaeef8""},{""portId"":""right1"",""name"":null,""description"":null,""portColor"":""#fadfe5""}],""loc"":""101 204"",""color"":""#66d6d1"",""description"":""asd""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""-100 300.40625"",""color"":""yellow"",""description"":""Category3""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""262 302.40625"",""color"":""green"",""description"":""Category2""},{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":""86 104.40625"",""color"":""red"",""description"":""Category1""}]";
+            //var c = @"[]";
+            //var Blocks = JsonConvert.DeserializeObject<List<BlockModel>>(b);
+            //var Palette = JsonConvert.DeserializeObject<List<BlockModel>>(a);
+            //var Links = JsonConvert.DeserializeObject<List<LinkModel>>(c);
 
-            await ExampleJsInterop.LoadDiagram(DiagramModel);
+            byte[] fileBytes =  await FileUtil.LoadFile(JSRuntime);
+            var JsonModel =  System.Text.Encoding.UTF8.GetString(fileBytes);
+            ExampleJsInterop.LoadDiagram(JsonModel);
         }
 
         
         private void HandleBlocksDeletedEvent(List<BlockModel> deletedBlocks)
         {
-            EventsFiered += Environment.NewLine + deletedBlocks .Count+ " Blocks deleted";
+            TriggeredEvents += Environment.NewLine + deletedBlocks .Count+ " Blocks deleted";
             StateHasChanged();
         }
         private void HandleBlocksAddedEvent(List<BlockModel> deletedBlocks)
         {
-            EventsFiered += Environment.NewLine + deletedBlocks.Count + " Blocks added";
+            TriggeredEvents += Environment.NewLine + deletedBlocks.Count + " Blocks added";
             StateHasChanged();
         }
         private void HandleLinkEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Link added"; 
+            TriggeredEvents += Environment.NewLine + "Link added"; 
             StateHasChanged();
         }
         private void HandleLinkDeletedEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Link deleted";
+            TriggeredEvents += Environment.NewLine + "Link deleted";
             StateHasChanged();
         }
         private void HandleBlockPositionChangedEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Block position changed";
+            TriggeredEvents += Environment.NewLine + "Block position changed";
             StateHasChanged();
         }
 
         private void HandleNodeMouseHoverEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Node mouse hover";
+            TriggeredEvents += Environment.NewLine + "Node mouse hover";
             StateHasChanged();
         }
         private void HandleLinkMouseHoverEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Link mouse hover";
+            TriggeredEvents += Environment.NewLine + "Link mouse hover";
             StateHasChanged();
         }
 
@@ -204,35 +210,35 @@ namespace GoJSBlazor.Pages {
             if (id != null)
             {
                 SelectedBlockId = id;
-                EventsFiered += Environment.NewLine + "selected block changed";
+                TriggeredEvents += Environment.NewLine + "selected block changed";
                 StateHasChanged();
             }
         }
 
         private void HandleUndoEvent()
         {
-            EventsFiered += Environment.NewLine + "Undo event";
+            TriggeredEvents += Environment.NewLine + "Undo event";
             StateHasChanged();
         }
         private void HandleRedoEvent()
         {
-            EventsFiered += Environment.NewLine + "Redo event";
+            TriggeredEvents += Environment.NewLine + "Redo event";
             StateHasChanged();
         }
 
         private void HandleContextHelpEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Context menu help";
+            TriggeredEvents += Environment.NewLine + "Context menu help";
             StateHasChanged();
         }
         private void HandleContextPropertiesEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Context menu properties";
+            TriggeredEvents += Environment.NewLine + "Context menu properties";
             StateHasChanged();
         }
         private void HandleContextOpenoEvent(string args)
         {
-            EventsFiered += Environment.NewLine + "Context menu open";
+            TriggeredEvents += Environment.NewLine + "Context menu open";
             StateHasChanged();
         }
         protected override void OnAfterRender(bool firstRender)

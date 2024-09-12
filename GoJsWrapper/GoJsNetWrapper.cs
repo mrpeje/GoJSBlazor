@@ -37,7 +37,10 @@ namespace GoJsWrapper
 
         public delegate void DiagramLoadedHandler();
         public event DiagramLoadedHandler DiagramLoaded;
-
+        public string GetJsDiagramModel()
+        {
+            return Diagram.JsModel;
+        }
         public GoJsNetWrapper(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
@@ -235,19 +238,22 @@ namespace GoJsWrapper
         {
             return Diagram.GetModel();
         }
-        public async Task LoadDiagram(DiagramModel model)
+        public async Task LoadDiagram(string jsModel)
         {
             await Diagram.Clear();
-            foreach (var modelBlock in model.Blocks.ToList())
-            {
-                await Diagram.AddBlockToJsModel(modelBlock);
-            }
+            var diagramModel = Diagram.ParseDiagramModel(jsModel);
+            if(diagramModel != null) 
+            { 
+                foreach (var modelBlock in diagramModel.Blocks.ToList())
+                {
+                    await Diagram.AddBlockToJsModel(modelBlock);
+                }
 
-            foreach (var link in model.Links.ToList())
-            {
-                await Diagram.AddLinkToJsModel(link);
+                foreach (var link in diagramModel.Links.ToList())
+                {
+                    await Diagram.AddLinkToJsModel(link);
+                }
             }
-
 
             DiagramLoaded?.Invoke();
         }
@@ -289,7 +295,6 @@ namespace GoJsWrapper
         {
             ReferenceAddedEventInterceptor = DotNetObjectReference.Create(AddedEventInterceptor);
             _jsRuntime.InvokeVoidAsync("subscribeAddedEvent", ReferenceAddedEventInterceptor);
-        }                 
-        
+        }
     }
 }

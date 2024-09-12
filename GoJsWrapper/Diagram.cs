@@ -13,7 +13,8 @@ namespace GoJsWrapper
     public class Diagram 
     {
         private readonly IJSRuntime _jsRuntime;
-
+        private string _jsModel;
+        public string JsModel {  get { return _jsModel; } }
         private DiagramModel Model { get; set; }
         public Diagram(IJSRuntime jsRuntime)
         {
@@ -23,23 +24,30 @@ namespace GoJsWrapper
             Model.Links = new List<LinkModel>();
         }
 
+
         internal void UpdateDiagramModel(string model)
         {
+            var parsedModel = ParseDiagramModel(model);           
+            if (parsedModel != null)
+            {
+                _jsModel = model;
+                Model.Blocks = parsedModel.Blocks;
+                Model.Links = parsedModel.Links;
+            }
+        }
+        internal DiagramModel? ParseDiagramModel(string model)
+        {
+            DiagramModel? parsedModel = null;
             try
             {
-                var parsedModel = JsonConvert.DeserializeObject<DiagramModel>(model);
-                if (parsedModel != null)
-                {
-                    Model.Blocks = parsedModel.Blocks;
-                    Model.Links = parsedModel.Links;
-                }
+                parsedModel = JsonConvert.DeserializeObject<DiagramModel>(model);
             }
             catch (JsonSerializationException ex)
             {
 
             }
+            return parsedModel;
         }
-
         public BlockModel GetBlockById(int id)
         {
             return Model.Blocks.FirstOrDefault(e => e.Id == id);

@@ -632,4 +632,4 @@ const jsonDefault = {
             { "from": 1, "to": 2, "fromPort": "right0", "toPort": "left1" },
             { "from": 1, "to": 2, "fromPort": "right1", "toPort": "left2" }
         ]
-    }
+}
