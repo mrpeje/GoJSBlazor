@@ -20,7 +20,5 @@ namespace GoJsWrapper.Models
         public string ToPort { get; set; }
         [JsonProperty(PropertyName = "key")]
         public int Id { get; set; } = -1;
-        //[JsonProperty(PropertyName = "points")]
-        //public double[] Points {  get; set; }
     }
 }

@@ -47,11 +47,7 @@ namespace GoJsWrapper
 
         public async Task RemoveBlockFromJsModel(int blockId)
         {
-            //Int32.TryParse(blockId, out var intBlockId);
-            //if(intBlockId < 0)
-            //    await _jsRuntime.InvokeAsync<string>("removeBlock", intBlockId);
-            //else
-                await _jsRuntime.InvokeAsync<string>("removeBlock", blockId);
+               await _jsRuntime.InvokeAsync<string>("removeBlock", blockId);
         }
         public async Task<bool> UpdateBlock(Block blockUpdate, int blockId)
         {
@@ -69,13 +65,7 @@ namespace GoJsWrapper
         public async Task UpdateBlockJsModel(BlockModel block)
         {
             var blockToUpdateJson = JsonConvert.SerializeObject(block);
-            //Int32.TryParse(block.Id, out var intBlockId);
-            //if (intBlockId < 0)
-            //{ 
-            //    await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, intBlockId); 
-            //}
-            //else
-                await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, block.Id);
+            await _jsRuntime.InvokeAsync<string>("updateBlock", blockToUpdateJson, block.Id);
 
         }
         BlockModel TryDeleteInputPort(string portId, BlockModel block)
@@ -106,15 +96,7 @@ namespace GoJsWrapper
 
         public async Task MoveBlockJsModel(int blockId, string newCoordinates)
         {
-            //Int32.TryParse(blockId, out var intBlockId);
-            //if (intBlockId < 0)
-            //{
-            //    await _jsRuntime.InvokeAsync<string>("updateBlockPosition", intBlockId, newCoordinates);
-            //}
-            //else
-            //{
-                await _jsRuntime.InvokeAsync<string>("updateBlockPosition", blockId, newCoordinates);
-            //}
+            await _jsRuntime.InvokeAsync<string>("updateBlockPosition", blockId, newCoordinates);
         }
 
         public LinkModel GetLinkByParams(int fromBlock, int toBlock, string fromPort, string toPort)
@@ -127,14 +109,12 @@ namespace GoJsWrapper
         }
         public async Task AddLinkToJsModel(LinkModel newlink)
         {
-            //Model.Links.Add(newlink);
             var newlinkJson = JsonConvert.SerializeObject(newlink);
             await _jsRuntime.InvokeAsync<string>("addLink", newlinkJson);
         }
 
         public async Task<bool> RemoveLinkFromJsModel(LinkModel link)
         {
-            //Model.Links.Remove(link);
             var foundLinkJson = JsonConvert.SerializeObject(link);
             await _jsRuntime.InvokeAsync<string>("deleteLink", foundLinkJson);
             return true;
@@ -142,7 +122,6 @@ namespace GoJsWrapper
 
         public async Task AddBlockToJsModel(BlockModel block)
         {
-            //Model.Blocks.Add(block);
             var validatedBlockJson = JsonConvert.SerializeObject(block);
             await _jsRuntime.InvokeAsync<string>("addNewBlock", validatedBlockJson);
         }

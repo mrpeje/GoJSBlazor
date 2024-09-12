@@ -210,27 +210,6 @@ function initDiagram(netReference, netRefRedoUndo, netRefBlockContext) {
         // includes a panel on each side with an itemArray of panels containing ports
         myDiagram.nodeTemplate = createNode();  // end Node
    
-        // an orthogonal link template, reshapable and relinkable
-        //myDiagram.linkTemplate =
-        //    $(CustomLink,  // defined below
-        //        {
-        //            routing: go.Link.AvoidsNodes,
-        //            corner: 4,
-        //            curve: go.Link.JumpGap,
-        //            reshapable: true,
-        //            resegmentable: true,
-        //            relinkableFrom: true,
-        //            relinkableTo: true,
-        //            contextMenu: linkMenu
-        //        },
-        //        {
-        //            mouseHover: (e, obj) => {
-        //                netReference.invokeMethodAsync('OnLinkMouseHoverEvent', obj.key.toString());
-        //            }
-        //        },
-        //        new go.Binding("points").makeTwoWay(),
-        //        $(go.Shape, { stroke: "#2F4F4F", strokeWidth: 2 })
-        //    );
         myDiagram.linkTemplate = new go.Link({
             routing: go.Routing.AvoidsNodes,
             corner: 4,
