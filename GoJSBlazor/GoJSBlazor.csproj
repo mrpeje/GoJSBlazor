@@ -8,12 +8,11 @@
   <ItemGroup>
     <PackageReference Include="Blazorise.Bootstrap5" Version="1.6.1" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.6.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.33" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.11" PrivateAssets="all" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\GoJsWrapper\GoJsWrapper.csproj" />
   </ItemGroup>
-
 </Project>

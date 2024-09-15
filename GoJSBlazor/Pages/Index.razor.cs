@@ -11,7 +11,7 @@ using System.Text;
 namespace GoJSBlazor.Pages {
     public partial class Index : ComponentBase
     {
-        [Inject] GoJsNetWrapper ExampleJsInterop { get; set; }
+        [Inject] GoJsNetWrapper GoJsNet { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         public string NodeId { get; set; }
         public string TriggeredEvents { get; set; }
@@ -36,12 +36,12 @@ namespace GoJSBlazor.Pages {
             if (newXcoordinate != null && newYcoordinate != null)
             {
                 var coordinates = new Point { X = Int32.Parse(newXcoordinate), Y = Int32.Parse(newYcoordinate) };
-                await ExampleJsInterop.MoveBlock(coordinates, SelectedBlockId);
+                await GoJsNet.MoveBlock(coordinates, SelectedBlockId);
             }
         }
         protected async void RemoveBlockPort()
         {
-            await ExampleJsInterop.RemovePortFromBlock("right0", SelectedBlockId);
+            await GoJsNet.RemovePortFromBlock("right0", SelectedBlockId);
         }
         protected async void UpdateBlockPorts()
         {
@@ -59,8 +59,8 @@ namespace GoJSBlazor.Pages {
                 Description = "blue port left2",
                 PortType = PortType.Input
             };
-            await ExampleJsInterop.AddPortToBlock(port, SelectedBlockId);
-            await ExampleJsInterop.AddPortToBlock(port2, SelectedBlockId);
+            await GoJsNet.AddPortToBlock(port, SelectedBlockId);
+            await GoJsNet.AddPortToBlock(port2, SelectedBlockId);
         }
         protected async void AddNewBlock()
         {
@@ -72,7 +72,7 @@ namespace GoJSBlazor.Pages {
                 Id = 0
             };
             
-            await ExampleJsInterop.AddBlock(newBlock);
+            await GoJsNet.AddBlock(newBlock);
         }
         protected async void AddBlockToPalette()
         {
@@ -102,7 +102,7 @@ namespace GoJSBlazor.Pages {
             {
                 port1, port2
             };
-            if (await ExampleJsInterop.AddPaletteBlock(newBlock, list))
+            if (await GoJsNet.AddPaletteBlock(newBlock, list))
                 AwalibleNodes.Add(newBlock.Category);
 
             StateHasChanged();
@@ -117,7 +117,7 @@ namespace GoJSBlazor.Pages {
                 ToBlock = ToBlock,
                 FromBlock = FromBlock
             };
-            await ExampleJsInterop.AddLink(newLink);
+            await GoJsNet.AddLink(newLink);
         }
         protected async void RemoveLink()
         {
@@ -128,42 +128,35 @@ namespace GoJSBlazor.Pages {
                 ToBlock = ToBlock,
                 FromBlock = FromBlock
             };
-            await ExampleJsInterop.RemoveLink(newLink);
+            await GoJsNet.RemoveLink(newLink);
         }
 
         protected async void RemoveBlock()
         {
-            await ExampleJsInterop.RemoveBlock(SelectedBlockId);
+            await GoJsNet.RemoveBlock(SelectedBlockId);
         }          
         protected async void RemovePaletteBlock()
         {
-            Block block = ExampleJsInterop.GetPaletteBlockById(SelectedBlockId);
+            Block block = GoJsNet.GetPaletteBlockById(SelectedBlockId);
             if (block != null)
             {
                 AwalibleNodes.Remove(block.Category);
-                await ExampleJsInterop.RemovePaletteBlock(SelectedBlockId);
+                await GoJsNet.RemovePaletteBlock(SelectedBlockId);
                 StateHasChanged();
             }
         }
         protected async Task Save()
         {
-            JsDiagramModel = ExampleJsInterop.GetJsDiagramModel();
+            JsDiagramModel = GoJsNet.GetJsDiagramModel();
             var bytes = System.Text.Encoding.UTF8.GetBytes(JsDiagramModel);
             await FileUtil.SaveAs(JSRuntime, "Diagram.txt", bytes);
            
         }
         protected async void Load()
         {
-            //var a = @"[{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":null,""color"":""red"",""description"":""Category1""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""0 70"",""color"":""green"",""description"":""Category2""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""0 140"",""color"":""yellow"",""description"":""Category3""}]";
-            //var b = @"[{""name"":""Unit One"",""category"":""Cat1"",""key"":""1"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":""asdasd"",""portColor"":""#fae3d7""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""#eaeef8""},{""portId"":""right1"",""name"":null,""description"":null,""portColor"":""#fadfe5""}],""loc"":""101 204"",""color"":""#66d6d1"",""description"":""asd""},{""name"":""Yellow"",""category"":""Category3"",""key"":""03"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""orange""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""orange""}],""loc"":""-100 300.40625"",""color"":""yellow"",""description"":""Category3""},{""name"":""Green"",""category"":""Category2"",""key"":""02"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""blue""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""blue""}],""loc"":""262 302.40625"",""color"":""green"",""description"":""Category2""},{""name"":""Red"",""category"":""Category"",""key"":""0"",""leftArray"":[{""portId"":""left0"",""name"":null,""description"":null,""portColor"":""black""}],""rightArray"":[{""portId"":""right0"",""name"":null,""description"":null,""portColor"":""black""}],""loc"":""86 104.40625"",""color"":""red"",""description"":""Category1""}]";
-            //var c = @"[]";
-            //var Blocks = JsonConvert.DeserializeObject<List<BlockModel>>(b);
-            //var Palette = JsonConvert.DeserializeObject<List<BlockModel>>(a);
-            //var Links = JsonConvert.DeserializeObject<List<LinkModel>>(c);
-
             byte[] fileBytes =  await FileUtil.LoadFile(JSRuntime);
             var JsonModel =  System.Text.Encoding.UTF8.GetString(fileBytes);
-            ExampleJsInterop.LoadDiagram(JsonModel);
+            await GoJsNet.LoadDiagram(JsonModel);
         }
 
         
@@ -245,22 +238,22 @@ namespace GoJSBlazor.Pages {
         {
             if (firstRender)
             {
-                ExampleJsInterop.SelectionEventInterceptor.NodeSelectionChanged += HandleSelectBlockEvent;
-                ExampleJsInterop.AddedEventInterceptor.BlockAddedEvent += HandleBlocksAddedEvent;
-                ExampleJsInterop.AddedEventInterceptor.BlocksRemoveEvent += HandleBlocksDeletedEvent;
-                ExampleJsInterop.AddedEventInterceptor.LinkAddedEvent += HandleLinkEvent;
-                ExampleJsInterop.AddedEventInterceptor.LinkRemoveEvent += HandleLinkDeletedEvent;
+                GoJsNet.SelectionEventInterceptor.NodeSelectionChanged += HandleSelectBlockEvent;
+                GoJsNet.AddedEventInterceptor.BlockAddedEvent += HandleBlocksAddedEvent;
+                GoJsNet.AddedEventInterceptor.BlocksRemoveEvent += HandleBlocksDeletedEvent;
+                GoJsNet.AddedEventInterceptor.LinkAddedEvent += HandleLinkEvent;
+                GoJsNet.AddedEventInterceptor.LinkRemoveEvent += HandleLinkDeletedEvent;
 
                 
-                ExampleJsInterop.MouseHoverEventInterceptor.NodeMouseHover += HandleNodeMouseHoverEvent;
-                ExampleJsInterop.MouseHoverEventInterceptor.LinkMouseHover += HandleLinkMouseHoverEvent;
-                ExampleJsInterop.BlockPositionEventInterceptor.BlockPositionChanged += HandleBlockPositionChangedEvent;
-                ExampleJsInterop.UndoRedoEventInterceptor.Undo += HandleUndoEvent;
-                ExampleJsInterop.UndoRedoEventInterceptor.Redo += HandleRedoEvent;
+                GoJsNet.MouseHoverEventInterceptor.NodeMouseHover += HandleNodeMouseHoverEvent;
+                GoJsNet.MouseHoverEventInterceptor.LinkMouseHover += HandleLinkMouseHoverEvent;
+                GoJsNet.BlockPositionEventInterceptor.BlockPositionChanged += HandleBlockPositionChangedEvent;
+                GoJsNet.UndoRedoEventInterceptor.Undo += HandleUndoEvent;
+                GoJsNet.UndoRedoEventInterceptor.Redo += HandleRedoEvent;
 
-                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextHelp += HandleContextHelpEvent;
-                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextProperties += HandleContextPropertiesEvent;
-                ExampleJsInterop.BlockContextMenuEventsInterceptor.ContextOpen += HandleContextOpenoEvent;
+                GoJsNet.BlockContextMenuEventsInterceptor.ContextHelp += HandleContextHelpEvent;
+                GoJsNet.BlockContextMenuEventsInterceptor.ContextProperties += HandleContextPropertiesEvent;
+                GoJsNet.BlockContextMenuEventsInterceptor.ContextOpen += HandleContextOpenoEvent;
 
 
 
