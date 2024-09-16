@@ -24,7 +24,7 @@ jobs:
         run: dotnet build GoJSBlazor.sln --configuration Release
         
       - name: Publish Blazor App
-        run: dotnet publish GoJSBlazor.csproj --configuration Release --output ./publish_output
+        run: dotnet publish GoJSBlazor/GoJSBlazor.csproj --configuration Release --output ./publish_output
 
       - name: Checkout GitHub Pages repository
         uses: actions/checkout@v3
