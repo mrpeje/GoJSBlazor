@@ -17,22 +17,23 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x 
-
-      - name: Install dependencies
-        run: dotnet restore
-
-      - name: Build the project
-        run: dotnet publish -c Release -o build
+      - name: Restore dependencies
+        run: dotnet restore GoJSBlazor.sln 
+        
+      - name: Build solution
+        run: dotnet build GoJSBlazor.sln --configuration Release
+        
+      - name: Publish Blazor App
+        run: dotnet publish GoJSBlazor.csproj --configuration Release --output ./publish_output
 
       - name: Checkout GitHub Pages repository
         uses: actions/checkout@v3
         with:
           repository: mrpeje/mrpeje.github.io
           path: ./mrpeje.github.io
-
       - name: Copy built Blazor app to GitHub Pages repo
         run: |
-          cp -r ./bin/Release/net6.0/browser-wasm/publish/* ./mrpeje.github.io  
+          cp -r ./publish_output/wwwroot/* ./mrpeje.github.io  
 
       - name: Authenticate and push to GitHub Pages
         run: |
