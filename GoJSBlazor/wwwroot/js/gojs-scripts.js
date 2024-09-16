@@ -614,7 +614,7 @@ const jsonDefault= {
                     "portId": "left0",
                     "name": "left",
                     "description": "portDescr",
-                    "portColor": "black"
+                    "portColor": "blue"
                 }
             ],
             "rightArray": [
