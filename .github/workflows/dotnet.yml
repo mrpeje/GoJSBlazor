@@ -37,7 +37,7 @@ jobs:
 
       - name: Authenticate and push to GitHub Pages
         run: |
-          cd ./gh-pages-repo
+          cd ./mrpeje.github.io 
           git init
           git remote add origin https://mrpeje:${{ secrets.DEPLOYTOKEN }}@github.com/mrpeje/mrpeje.github.io.git
           git config user.name 'GitHub Actions'
