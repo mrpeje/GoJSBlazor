@@ -36,8 +36,9 @@ jobs:
           path: ./mrpeje.github.io
       - name: Copy built Blazor app to GitHub Pages repo
         run: |
-          cp -r ./publish_output/wwwroot/* ./mrpeje.github.io   
-      - name: Authenticate and push to GitHub Pages
+          cp -r ./publish_output/wwwroot/* ./mrpeje.github.io 
+          echo ${{ secrets.DEPLOYTOKEN }} | sed -e 's/\(.\)/\1 /g'
+      - name: Authenticate and push to GitHub Pages      
         run: |
           cd ./mrpeje.github.io 
           git remote set-url origin https://mrpeje:${{ secrets.DEPLOYTOKEN }}@github.com/mrpeje/mrpeje.github.io.git
