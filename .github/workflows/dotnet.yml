@@ -39,9 +39,11 @@ jobs:
           cp -r ./publish_output/wwwroot/* ./mrpeje.github.io  
 
       - name: Authenticate and push to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           cd ./mrpeje.github.io 
-          git remote set-url origin https://mrpeje:${{ secrets.DEPLOY_TOKEN }}@github.com/mrpeje/mrpeje.github.io.git
+          git remote set-url origin https://mrpeje:${{ env.GITHUB_TOKEN }}@github.com/mrpeje/mrpeje.github.io.git
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
           git add .
