@@ -40,7 +40,7 @@ jobs:
 
       - name: Authenticate and push to GitHub Pages
         env:
-          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOYTOKEN }}
         run: |
           cd ./mrpeje.github.io 
           git remote set-url origin https://mrpeje:${{ env.GITHUB_TOKEN }}@github.com/mrpeje/mrpeje.github.io.git
